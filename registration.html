@@ -1,201 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تسجيل طلب السكن - جامعة نجران</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body>
-    <header class="university-header">
-        <div class="header-content">
-            <h1>نموذج تسجيل طلب السكن</h1>
-            <p>املأ جميع الحقول المطلوبة بدقة</p>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="registration-container">
-            <div class="form-card">
-                <h2>📝 بيانات الطالب</h2>
-                
-                <form id="studentRegistrationForm">
-                    <div class="form-group">
-                        <label for="fullName">الاسم الرباعي *</label>
-                        <input type="text" id="fullName" required 
-                               placeholder="أحمد محمد عبدالله العتيبي">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="nationalId">رقم الهوية الوطنية *</label>
-                        <input type="text" id="nationalId" required 
-                               pattern="[0-9]{10}" maxlength="10"
-                               placeholder="10XXXXXXXX">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="phone">رقم الجوال *</label>
-                        <input type="tel" id="phone" required 
-                               pattern="05[0-9]{8}" maxlength="10"
-                               placeholder="05XXXXXXXX">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="email">البريد الإلكتروني *</label>
-                        <input type="email" id="email" required 
-                               placeholder="example@nu.edu.sa">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gpa">المعدل التراكمي *</label>
-                        <input type="number" id="gpa" required 
-                               min="0" max="5" step="0.01"
-                               placeholder="4.50">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="province">المحافظة *</label>
-                        <select id="province" required>
-                            <option value="">اختر المحافظة</option>
-                            <option value="نجران">نجران</option>
-                            <option value="الرياض">الرياض</option>
-                            <option value="مكة المكرمة">مكة المكرمة</option>
-                            <option value="المدينة المنورة">المدينة المنورة</option>
-                            <option value="الشرقية">الشرقية</option>
-                            <option value="عسير">عسير</option>
-                            <option value="جازان">جازان</option>
-                            <option value="حائل">حائل</option>
-                        </select>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="specialization">التخصص *</label>
-                        <input type="text" id="specialization" required 
-                               placeholder="هندسة حاسب">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="gender">الجنس *</label>
-                        <select id="gender" required>
-                            <option value="">اختر الجنس</option>
-                            <option value="ذكر">ذكر</option>
-                            <option value="أنثى">أنثى</option>
-                        </select>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary btn-large">
-                            ✅ تأكيد التسجيل
-                        </button>
-                        <a href="index.html" class="btn-secondary">إلغاء</a>
-                    </div>
-                </form>
-            </div>
-
-            <div class="info-sidebar">
-                <div class="info-card">
-                    <h3>⚠️ ملاحظات هامة</h3>
-                    <ul>
-                        <li>النظام يحتفظ بـ 50 طلباً فقط (الأحدث يحل محل الأقدم)</li>
-                        <li>سيتم المفاضلة بين الطلاب حسب المعدل والمسافة</li>
-                        <li>جميع البيانات المقدمة ستحفظ في الخزنة الإدارية</li>
-                        <li>لا يمكن تعديل البيانات بعد التسجيل</li>
-                    </ul>
-                </div>
-
-                <div class="counter-card">
-                    <h3>📊 عدد الطلبات الحالي</h3>
-                    <div class="counter-number" id="currentRequests">0</div>
-                    <div class="counter-max">/ 50</div>
-                    <div class="counter-bar">
-                        <div class="counter-fill" id="counterFill"></div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <p>© 2024 جامعة نجران - نظام السكن الجامعي</p>
-    </footer>
-
-    <script src="js/main.js"></script>
-    <script src="js/vault.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.getElementById('studentRegistrationForm');
-            const counter = document.getElementById('currentRequests');
-            const fill = document.getElementById('counterFill');
-            
-            // تحديث العداد عند التحميل
-            updateCounter();
-            
-            function updateCounter() {
-                const vault = new StudentVault();
-                const count = vault.getApplicationsCount();
-                counter.textContent = count;
-                const percentage = (count / 50) * 100;
-                fill.style.width = percentage + '%';
-                
-                if (count >= 50) {
-                    fill.style.backgroundColor = '#dc3545';
-                    document.querySelector('.counter-card').classList.add('full');
-                } else if (count >= 40) {
-                    fill.style.backgroundColor = '#ffc107';
-                    document.querySelector('.counter-card').classList.add('warning');
-                }
-            }
-            
-            form.addEventListener('submit', function(e) {
-                e.preventDefault();
-                
-                // جمع البيانات
-                const studentData = {
-                    id: Date.now(),
-                    fullName: document.getElementById('fullName').value,
-                    nationalId: document.getElementById('nationalId').value,
-                    phone: document.getElementById('phone').value,
-                    email: document.getElementById('email').value,
-                    gpa: parseFloat(document.getElementById('gpa').value),
-                    province: document.getElementById('province').value,
-                    specialization: document.getElementById('specialization').value,
-                    gender: document.getElementById('gender').value,
-                    registrationDate: new Date().toISOString(),
-                    status: 'pending'
-                };
-                
-                // التحقق من البيانات
-                if (!validateData(studentData)) {
-                    alert('الرجاء تعبئة جميع الحقول بشكل صحيح');
-                    return;
-                }
-                
-                // حفظ في الخزنة
-                const vault = new StudentVault();
-                const result = vault.addApplication(studentData);
-                
-                if (result.success) {
-                    // تخزين مؤقت للعرض
-                    localStorage.setItem('lastRegisteredStudent', JSON.stringify(studentData));
-                    
-                    // الانتقال إلى صفحة النجاح
-                    window.location.href = 'success.html';
-                } else {
-                    alert(result.message);
-                }
-            });
-            
-            function validateData(data) {
-                if (!data.fullName || data.fullName.length < 10) return false;
-                if (!/^[0-9]{10}$/.test(data.nationalId)) return false;
-                if (!/^05[0-9]{8}$/.test(data.phone)) return false;
-                if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(data.email)) return false;
-                if (isNaN(data.gpa) || data.gpa < 0 || data.gpa > 5) return false;
-                if (!data.province || !data.specialization || !data.gender) return false;
-                return true;
-            }
-        });
-    </script>
-</body>
-</html>
