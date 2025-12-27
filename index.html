@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حجز السكن الجامعي - جامعة نجران</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- الوضع الليلي التلقائي -->
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <!-- الهيدر الرسمي -->
+    <header class="university-header">
+        <div class="header-left">
+            <img src="assets/images/vision2030.png" alt="رؤية 2030" class="logo">
+            <span>التحول الرقمي في الخدمات الطلابية</span>
+        </div>
+        <div class="header-center">
+            <h1>نظام حجز السكن الجامعي</h1>
+            <p>جامعة نجران - عمادة شؤون الطلاب</p>
+        </div>
+        <div class="header-right">
+            <img src="assets/images/university-logo.png" alt="شعار جامعة نجران" class="logo">
+            <span>نظام آمن ومشفر</span>
+        </div>
+    </header>
+
+    <!-- شريط التنقل -->
+    <nav class="main-nav">
+        <ul>
+            <li><a href="index.html" class="active">الرئيسية</a></li>
+            <li><a href="login.html">تسجيل الدخول</a></li>
+            <li><a href="building_selection.html">اختيار السكن</a></li>
+            <li><a href="database_vault.html" class="admin-link">الخزنة (إداري)</a></li>
+        </ul>
+    </nav>
+
+    <!-- الإحصائيات الحيوية -->
+    <section class="stats-section">
+        <div class="container">
+            <h2><i class="icon-shield"></i> إحصائيات النظام الحيوية</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="icon-users"></i>
+                    </div>
+                    <h3>إجمالي المسجلين</h3>
+                    <div class="stat-number" id="totalStudentsLive">2,847</div>
+                    <p>طالب وطالبة</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="icon-building"></i>
+                    </div>
+                    <h3>السعة الإجمالية</h3>
+                    <div class="stat-number">3,500</div>
+                    <p>سرير متاح</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="icon-percent"></i>
+                    </div>
+                    <h3>نسبة الإشغال</h3>
+                    <div class="stat-number" id="occupancyRate">81%</div>
+                    <p>من إجمالي السعة</p>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="icon-check"></i>
+                    </div>
+                    <h3>طلبات ناجحة</h3>
+                    <div class="stat-number">2,543</div>
+                    <p>حجز مؤكد</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الخطوات الإرشادية -->
+    <section class="steps-section">
+        <div class="container">
+            <h2><i class="icon-guide"></i> رحلة حجز السكن في 4 خطوات</h2>
+            <div class="steps-container">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>التسجيل عبر النفاذ الوطني</h3>
+                        <p>الدخول عبر بوابة النفاذ الوطني للتحقق من الهوية والبيانات الشخصية</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>إدخال البيانات الأكاديمية</h3>
+                        <p>إدخال المعدل التراكمي والتخصص والمحافظة للمفاضلة العادلة</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>اختيار المبنى والغرفة</h3>
+                        <p>اختيار المبنى المناسب حسب الجنس والكثافة المتاحة</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <div class="step-content">
+                        <h3>تأكيد الحجز واستلام الرقم</h3>
+                        <p>تخزين البيانات في الخزنة الآمنة واستلام رقم الحجز النهائي</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- زر البدء الرئيسي -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-card">
+                <h2>ابدأ رحلة حجز سكنك الجامعي الآن</h2>
+                <p>نظام آمن، سريع، وعادل يراعي الأولويات الأكاديمية والجغرافية</p>
+                <a href="login.html" class="btn-primary btn-large">
+                    <i class="icon-start"></i> ابدأ التسجيل الآن
+                </a>
+                <div class="security-badge">
+                    <img src="assets/images/ncsc.png" alt="شعار المركز الوطني للأمن السيبراني">
+                    <span>نظام مشفر وآمن وفق معايير NCSC</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الفوتر -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h4>جامعة نجران</h4>
+                    <p>عمادة شؤون الطلاب - إدارة السكن الطلابي</p>
+                    <p>ص.ب: 1988، نجران 66262</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>الدعم الفني</h4>
+                    <p><i class="icon-phone"></i> 0175432100</p>
+                    <p><i class="icon-email"></i> housing@nu.edu.sa</p>
+                    <p>الأحد - الخميس: 8 صباحاً - 3 مساءً</p>
+                </div>
+                
+                <div class="footer-section">
+                    <h4>تابعنا</h4>
+                    <div class="social-links">
+                        <a href="#"><i class="icon-twitter"></i></a>
+                        <a href="#"><i class="icon-instagram"></i></a>
+                        <a href="#"><i class="icon-telegram"></i></a>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>© 2024 جميع الحقوق محفوظة - جامعة نجران. هذا النظام جزء من التحول الرقمي تحقيقاً لرؤية 2030</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+    <script src="js/dashboard.js"></script>
+    <script>
+        // تحديث الإحصائيات عند التحميل
+        document.addEventListener('DOMContentLoaded', function() {
+            const vault = new StudentVault();
+            const stats = vault.calculateStatistics();
+            
+            document.getElementById('totalStudentsLive').textContent = stats.total.toLocaleString();
+            document.getElementById('occupancyRate').textContent = 
+                Math.min(100, Math.round((stats.total / 3500) * 100)) + '%';
+        });
+    </script>
+</body>
+</html>
