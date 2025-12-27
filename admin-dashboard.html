@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم الإدارية - جامعة نجران</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="admin-dashboard">
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <!-- التحقق من صلاحية الدخول -->
+    <script>
+        if (!localStorage.getItem('adminSession')) {
+            window.location.href = 'login.html?redirect=dashboard';
+        }
+    </script>
+
+    <!-- الهيدر الإداري -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-brand">
+                <img src="assets/images/university-logo.png" alt="شعار الجامعة" class="admin-logo">
+                <div class="brand-text">
+                    <h1>لوحة التحكم الإدارية</h1>
+                    <p>نظام مراقبة وإدارة السكن الجامعي</p>
+                </div>
+            </div>
+            
+            <div class="admin-controls">
+                <div class="admin-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span>مدير النظام</span>
+                    <span class="badge">عامل</span>
+                </div>
+                <div class="time-display">
+                    <i class="fas fa-clock"></i>
+                    <span id="currentTime">--:--:--</span>
+                </div>
+                <button id="logoutAdmin" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
+        </div>
+        
+        <nav class="admin-nav">
+            <ul>
+                <li><a href="database_vault.html"><i class="fas fa-database"></i> خزنة البيانات</a></li>
+                <li><a href="admin-dashboard.html" class="active"><i class="fas fa-chart-bar"></i> لوحة التحكم</a></li>
+                <li><a href="#"><i class="fas fa-bell"></i> الإشعارات <span class="notification-badge">3</span></a></li>
+                <li><a href="#"><i class="fas fa-cog"></i> الإعدادات</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="container">
+            <!-- بطاقات الإحصائيات السريعة -->
+            <section class="quick-stats">
+                <h2 class="visually-hidden">إحصائيات سريعة</h2>
+                <div class="stats-grid">
+                    <div class="stat-card total">
+                        <div class="stat-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>إجمالي المسجلين</h3>
+                            <div class="stat-number" id="dashboardTotal">0</div>
+                            <div class="stat-trend">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>+12% عن الأسبوع الماضي</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card occupancy">
+                        <div class="stat-icon">
+                            <i class="fas fa-bed"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>نسبة الإشغال</h3>
+                            <div class="stat-number" id="dashboardOccupancy">0%</div>
+                            <div class="occupancy-bar">
+                                <div class="bar-fill" id="occupancyBar"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card average">
+                        <div class="stat-icon">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>متوسط المعدل</h3>
+                            <div class="stat-number" id="dashboardAvgGPA">0.00</div>
+                            <div class="gpa-scale">
+                                <span>0</span>
+                                <div class="scale-bar">
+                                    <div class="scale-fill" id="gpaScale"></div>
+                                </div>
+                                <span>5.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-card pending">
+                        <div class="stat-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>طلبات قيد المراجعة</h3>
+                            <div class="stat-number" id="dashboardPending">0</div>
+                            <button class="btn-review">مراجعة الآن</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- الرسوم البيانية الرئيسية -->
+            <section class="charts-section">
+                <div class="chart-row">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-line"></i> تطور التسجيلات خلال الشهر</h3>
+                            <select id="chartTimeRange" class="chart-select">
+                                <option value="week">آخر أسبوع</option>
+                                <option value="month" selected>آخر شهر</option>
+                                <option value="quarter">آخر 3 أشهر</option>
+                            </select>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="registrationsChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-chart-pie"></i> توزيع الطلاب حسب التخصص</h3>
+                            <button class="btn-export-chart">
+                                <i class="fas fa-download"></i>
+                            </button>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="specializationsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-row">
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-map-marked-alt"></i> التوزيع الجغرافي</h3>
+                            <div class="chart-legend" id="provinceLegend"></div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="geographicChart"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <div class="chart-header">
+                            <h3><i class="fas fa-building"></i> إشغال المباني</h3>
+                            <div class="building-filters">
+                                <label class="filter-option">
+                                    <input type="checkbox" id="filterMale" checked> ذكور
+                                </label>
+                                <label class="filter-option">
+                                    <input type="checkbox" id="filterFemale" checked> إناث
+                                </label>
+                            </div>
+                        </div>
+                        <div class="chart-wrapper">
+                            <canvas id="buildingsChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- قائمة الطلاب ذات الأولوية العالية -->
+            <section class="priority-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-crown"></i> قائمة الطلاب ذات الأولوية العالية</h3>
+                    <div class="priority-criteria">
+                        <span class="criteria-item"><i class="fas fa-graduation-cap"></i> معدل عالي</span>
+                        <span class="criteria-item"><i class="fas fa-road"></i> مسافة بعيدة</span>
+                    </div>
+                </div>
+                
+                <div class="priority-table-container">
+                    <table class="priority-table">
+                        <thead>
+                            <tr>
+                                <th>الترتيب</th>
+                                <th>الاسم</th>
+                                <th>المعدل</th>
+                                <th>المحافظة</th>
+                                <th>نقاط الأولوية</th>
+                                <th>الحالة</th>
+                                <th>الإجراء</th>
+                            </tr>
+                        </thead>
+                        <tbody id="priorityTableBody">
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- التنبيهات والإشعارات -->
+            <section class="alerts-section">
+                <div class="alerts-container">
+                    <div class="alerts-header">
+                        <h3><i class="fas fa-bell"></i> التنبيهات النشطة</h3>
+                        <span class="alerts-count">3 تنبيهات</span>
+                    </div>
+                    
+                    <div class="alerts-list">
+                        <div class="alert-item warning">
+                            <div class="alert-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>المبنى ج قريب من الامتلاء</h4>
+                                <p>نسبة الإشغال 95% - السعة المتبقية 5 غرف فقط</p>
+                                <span class="alert-time">منذ ساعتين</span>
+                            </div>
+                            <button class="alert-action">معالجة</button>
+                        </div>
+                        
+                        <div class="alert-item info">
+                            <div class="alert-icon">
+                                <i class="fas fa-info-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>ارتفاع في طلبات تخصص علوم الحاسب</h4>
+                                <p>زيادة 25% عن المعدل المعتاد - قد تحتاج تخصيص مباني إضافية</p>
+                                <span class="alert-time">منذ 5 ساعات</span>
+                            </div>
+                            <button class="alert-action">تحليل</button>
+                        </div>
+                        
+                        <div class="alert-item success">
+                            <div class="alert-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="alert-content">
+                                <h4>اكتمال نسخ احتياطي للبيانات</h4>
+                                <p>تم بنجاح حفظ نسخة احتياطية من قاعدة البيانات بتاريخ ١٤٤٥/٠٦/٠١</p>
+                                <span class="alert-time">منذ يوم</span>
+                            </div>
+                            <button class="alert-action">عرض</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <h3><i class="fas fa-bolt"></i> إجراءات سريعة</h3>
+                    <div class="actions-grid">
+                        <button class="quick-action" id="sendAnnouncement">
+                            <i class="fas fa-bullhorn"></i>
+                            <span>إرسال إعلان</span>
+                        </button>
+                        
+                        <button class="quick-action" id="generateReport">
+                            <i class="fas fa-file-pdf"></i>
+                            <span>تقرير شهري</span>
+                        </button>
+                        
+                        <button class="quick-action" id="updateCapacity">
+                            <i class="fas fa-bed"></i>
+                            <span>تعديل السعة</span>
+                        </button>
+                        
+                        <button class="quick-action" id="systemHealth">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>صحة النظام</span>
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- الإحصائيات التفصيلية -->
+            <section class="detailed-stats">
+                <div class="stats-tabs">
+                    <button class="tab-btn active" data-tab="hourly">التسجيلات حسب الساعة</button>
+                    <button class="tab-btn" data-tab="daily">التسجيلات اليومية</button>
+                    <button class="tab-btn" data-tab="weekly">الإحصائيات الأسبوعية</button>
+                </div>
+                
+                <div class="stats-content">
+                    <div class="tab-pane active" id="hourlyStats">
+                        <div class="hourly-chart-container">
+                            <canvas id="hourlyChart"></canvas>
+                        </div>
+                        <div class="hourly-summary">
+                            <h4>أوقات الذروة</h4>
+                            <div class="peak-times">
+                                <div class="peak-item">
+                                    <span class="peak-hour">10:00 - 12:00 صباحاً</span>
+                                    <span class="peak-count">124 تسجيل</span>
+                                </div>
+                                <div class="peak-item">
+                                    <span class="peak-hour">04:00 - 06:00 مساءً</span>
+                                    <span class="peak-count">98 تسجيل</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- الفوتر الإداري -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <p><i class="fas fa-shield-alt"></i> آخر تحديث للبيانات: <span id="dashboardLastUpdate">--:--</span></p>
+                <p>الخادم: <span class="server-status active">عامل</span> | الاستجابة: <span id="responseTime">85ms</span></p>
+            </div>
+            
+            <div class="footer-center">
+                <div class="data-refresh">
+                    <span>تحديث تلقائي كل:</span>
+                    <select id="autoRefresh">
+                        <option value="30">30 ثانية</option>
+                        <option value="60" selected>دقيقة</option>
+                        <option value="300">5 دقائق</option>
+                        <option value="off">إيقاف</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="footer-right">
+                <p>© 2024 لوحة تحكم نظام السكن الجامعي - الإصدار 2.1.0</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/dashboard.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث الوقت
+            function updateTime() {
+                const now = new Date();
+                const timeString = now.toLocaleTimeString('ar-SA', {
+                    hour12: true,
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                document.getElementById('currentTime').textContent = timeString;
+            }
+            
+            updateTime();
+            setInterval(updateTime, 1000);
+            
+            // تحميل البيانات
+            const dashboard = new DashboardSystem();
+            dashboard.loadData();
+            
+            // تحديث الإحصائيات
+            function updateDashboardStats() {
+                const vault = new StudentVault();
+                const stats = vault.calculateStatistics();
+                
+                // الإحصائيات الرئيسية
+                document.getElementById('dashboardTotal').textContent = stats.total.toLocaleString();
+                
+                const occupancyRate = Math.min(100, Math.round((stats.total / 3500) * 100));
+                document.getElementById('dashboardOccupancy').textContent = occupancyRate + '%';
+                document.getElementById('occupancyBar').style.width = occupancyRate + '%';
+                
+                document.getElementById('dashboardAvgGPA').textContent = stats.avgGPA;
+                document.getElementById('gpaScale').style.width = (stats.avgGPA / 5 * 100) + '%';
+                
+                document.getElementById('dashboardLastUpdate').textContent = 
+                    new Date().toLocaleTimeString('ar-SA');
+                
+                // تحديث الرسوم البيانية
+                dashboard.updateCharts(stats);
+                
+                // تحديث قائمة الأولويات
+                updatePriorityList(vault);
+            }
+            
+            function updatePriorityList(vault) {
+                const prioritySystem = new SmartSortingSystem(vault.students);
+                const prioritized = prioritySystem.prioritizeStudents();
+                
+                const tableBody = document.getElementById('priorityTableBody');
+                tableBody.innerHTML = '';
+                
+                // عرض أول 10 طلاب فقط
+                prioritized.slice(0, 10).forEach((student, index) => {
+                    const priorityScore = calculatePriorityScore(student.gpa, student.province);
+                    const row = document.createElement('tr');
+                    
+                    row.innerHTML = `
+                        <td>
+                            <span class="rank-badge rank-${index + 1}">${index + 1}</span>
+                        </td>
+                        <td>
+                            <div class="student-name">${student.fullName}</div>
+                            <div class="student-id">${student.nationalId}</div>
+                        </td>
+                        <td class="gpa-cell">
+                            <span class="gpa-value">${student.gpa}</span>
+                        </td>
+                        <td>
+                            <span class="province-badge">${student.province}</span>
+                        </td>
+                        <td>
+                            <div class="priority-score">
+                                <div class="score-bar">
+                                    <div class="score-fill" style="width: ${priorityScore}%"></div>
+                                </div>
+                                <span class="score-text">${priorityScore}</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge confirmed">مؤكد</span>
+                        </td>
+                        <td>
+                            <button class="btn-action view-btn" data-id="${student.id}">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </td>
+                    `;
+                    
+                    tableBody.appendChild(row);
+                });
+            }
+            
+            function calculatePriorityScore(gpa, province) {
+                const distanceMap = {
+                    'نجران': 0,
+                    'الرياض': 85,
+                    'مكة المكرمة': 90,
+                    'المدينة المنورة': 88,
+                    'الشرقية': 95,
+                    'عسير': 30,
+                    'جازان': 65,
+                    'حائل': 75,
+                    'القصيم': 70,
+                    'تبوك': 80,
+                    'الجوف': 82,
+                    'الباحة': 40,
+                    'الحدود الشمالية': 89
+                };
+                
+                const gpaScore = (gpa / 5) * 70;
+                const distanceScore = (distanceMap[province] || 50) * 0.3;
+                return Math.min(100, Math.round(gpaScore + distanceScore));
+            }
+            
+            // تحديث الإحصائيات أول مرة
+            updateDashboardStats();
+            
+            // إعداد التحديث التلقائي
+            let refreshInterval;
+            function setupAutoRefresh(seconds) {
+                if (refreshInterval) clearInterval(refreshInterval);
+                
+                if (seconds !== 'off') {
+                    refreshInterval = setInterval(updateDashboardStats, seconds * 1000);
+                }
+            }
+            
+            document.getElementById('autoRefresh').addEventListener('change', function() {
+                setupAutoRefresh(this.value);
+            });
+            
+            // بدء التحديث التلقائي (كل دقيقة)
+            setupAutoRefresh(60);
+            
+            // تسجيل الخروج
+            document.getElementById('logoutAdmin').addEventListener('click', function() {
+                localStorage.removeItem('adminSession');
+                window.location.href = 'index.html';
+            });
+            
+            // تبديل علامات التبويب
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // إزالة النشط من الجميع
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+                    
+                    // تفعيل الحالي
+                    this.classList.add('active');
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId + 'Stats').classList.add('active');
+                });
+            });
+            
+            // الإجراءات السريعة
+            document.getElementById('sendAnnouncement').addEventListener('click', function() {
+                alert('سيتم فتح نافذة إرسال الإعلانات في الإصدار القادم');
+            });
+            
+            document.getElementById('generateReport').addEventListener('click', function() {
+                generateMonthlyReport();
+            });
+            
+            function generateMonthlyReport() {
+                const vault = new StudentVault();
+                const stats = vault.calculateStatistics();
+                
+                const reportContent = `
+                    تقرير شهري - نظام السكن الجامعي
+                    جامعة نجران
+                    تاريخ التقرير: ${new Date().toLocaleDateString('ar-SA')}
+                    
+                    إجمالي المسجلين: ${stats.total}
+                    طلاب ذكور: ${stats.maleCount} (${Math.round((stats.maleCount/stats.total)*100)}%)
+                    طالبات إناث: ${stats.femaleCount} (${Math.round((stats.femaleCount/stats.total)*100)}%)
+                    
+                    متوسط المعدل التراكمي: ${stats.avgGPA}
+                    
+                    توزيع المحافظات:
+                    ${Object.entries(stats.provinces).map(([province, count]) => 
+                        `- ${province}: ${count} طالب`).join('\n')}
+                `;
+                
+                // في الإصدار الحقيقي، نستخدم مكتبة لإنشاء PDF
+                // هنا نعرض محتوى بسيط
+                alert('تم إنشاء التقرير الشهري:\n\n' + reportContent);
+            }
+        });
+    </script>
+</body>
+                          </html>
