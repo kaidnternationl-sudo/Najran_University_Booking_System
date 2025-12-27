@@ -1,0 +1,493 @@
+/* ===========================================
+   التصميم المتجاوب - نظام حجز السكن الجامعي
+   جامعة نجران - عمادة شؤون الطلاب
+   =========================================== */
+
+/* هواتف صغيرة (أقل من 576px) */
+@media (max-width: 575.98px) {
+    html {
+        font-size: 14px;
+    }
+    
+    .container {
+        padding: 0 15px;
+    }
+    
+    /* الهيدر */
+    .university-header {
+        flex-direction: column;
+        height: auto;
+        padding: 1rem;
+        text-align: center;
+    }
+    
+    .header-left,
+    .header-center,
+    .header-right {
+        flex: none;
+        justify-content: center;
+        margin-bottom: 0.5rem;
+    }
+    
+    .header-right {
+        margin-bottom: 0;
+    }
+    
+    /* شريط التنقل */
+    .main-nav ul {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .main-nav a {
+        padding: 0.75rem;
+        text-align: center;
+        border-bottom: 1px solid var(--border-color);
+    }
+    
+    body.dark-mode .main-nav a {
+        border-bottom-color: var(--dark-border);
+    }
+    
+    .main-nav a.active::after {
+        display: none;
+    }
+    
+    .main-nav a.active {
+        background: rgba(var(--primary-green-rgb), 0.1);
+    }
+    
+    body.dark-mode .main-nav a.active {
+        background: rgba(var(--light-green-rgb), 0.15);
+    }
+    
+    /* البطاقات والإحصائيات */
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+    }
+    
+    /* الخطوات الإرشادية */
+    .steps-container {
+        flex-direction: column;
+    }
+    
+    .step {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .step-number {
+        margin: 0 auto 1rem;
+    }
+    
+    /* النماذج */
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .form-group {
+        margin-bottom: 1rem;
+    }
+    
+    .form-section {
+        padding: 1rem;
+    }
+    
+    /* الأزرار */
+    .btn-primary,
+    .btn-secondary,
+    .btn-tertiary {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    /* الجداول */
+    .vault-table {
+        display: block;
+        overflow-x: auto;
+    }
+    
+    .vault-table th,
+    .vault-table td {
+        padding: 0.5rem;
+        font-size: 0.875rem;
+    }
+    
+    /* الفوتر */
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .footer-section {
+        min-width: 100%;
+    }
+    
+    /* صفحة النجاح */
+    .reservation-code {
+        font-size: 1.2rem;
+        padding: 0.75rem 1rem;
+        word-break: break-all;
+    }
+    
+    .qr-section {
+        margin-top: 2rem;
+    }
+    
+    /* الخزنة */
+    .vault-controls {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .controls-left,
+    .controls-right {
+        width: 100%;
+        min-width: auto;
+    }
+    
+    .filter-group {
+        flex-direction: column;
+    }
+    
+    .distribution-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .chart-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .alerts-section {
+        grid-template-columns: 1fr;
+    }
+    
+    .priority-criteria {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
+
+/* هواتف متوسطة وأجهزة لوحية (من 576px إلى 991.98px) */
+@media (min-width: 576px) and (max-width: 991.98px) {
+    .container {
+        padding: 0 20px;
+    }
+    
+    /* الهيدر */
+    .university-header {
+        flex-wrap: wrap;
+    }
+    
+    .header-left,
+    .header-right {
+        flex: 0 0 50%;
+        margin-bottom: 1rem;
+    }
+    
+    .header-center {
+        flex: 0 0 100%;
+        order: 3;
+    }
+    
+    /* الإحصائيات */
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    /* الخطوات */
+    .steps-container {
+        flex-wrap: wrap;
+    }
+    
+    .step {
+        flex: 0 0 calc(50% - 20px);
+        margin-bottom: 20px;
+    }
+    
+    /* النماذج */
+    .form-row {
+        flex-wrap: wrap;
+    }
+    
+    .form-group {
+        flex: 0 0 calc(50% - 10px);
+    }
+    
+    /* الجداول */
+    .vault-table th,
+    .vault-table td {
+        padding: 0.75rem;
+        font-size: 0.9rem;
+    }
+    
+    /* الخزنة */
+    .vault-controls {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .controls-left,
+    .controls-right {
+        width: 100%;
+    }
+    
+    .distribution-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+    
+    .chart-row {
+        grid-template-columns: 1fr;
+    }
+    
+    .alerts-section {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* أجهزة سطح المكتب الصغيرة (من 992px إلى 1199.98px) */
+@media (min-width: 992px) and (max-width: 1199.98px) {
+    .container {
+        max-width: 960px;
+    }
+    
+    /* الإحصائيات */
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    /* الخزنة */
+    .distribution-grid {
+        grid-template-columns: 1fr 1.5fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* أجهزة سطح المكتب الكبيرة (1200px فما فوق) */
+@media (min-width: 1200px) {
+    .container {
+        max-width: 1200px;
+    }
+    
+    /* إعدادات خاصة للشاشات الكبيرة */
+    .stats-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+    
+    .distribution-grid {
+        grid-template-columns: 1fr 2fr;
+    }
+    
+    .actions-grid {
+        grid-template-columns: repeat(6, 1fr);
+    }
+}
+
+/* تحسينات للشاشات عالية الدقة */
+@media (min-resolution: 192dpi) {
+    .logo,
+    .ncsc-logo,
+    .admin-logo {
+        image-rendering: -webkit-optimize-contrast;
+        image-rendering: crisp-edges;
+    }
+}
+
+/* تحسينات للوضع الأفقي في الأجهزة اللوحية */
+@media (orientation: landscape) and (max-width: 991.98px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .steps-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+    
+    .step {
+        flex: 0 0 calc(50% - 20px);
+    }
+}
+
+/* دعم الشاشات فائقة العرض */
+@media (min-width: 1600px) {
+    .container {
+        max-width: 1400px;
+    }
+}
+
+/* تصحيح لعرض متصفح Safari على iOS */
+@supports (-webkit-touch-callout: none) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-tertiary {
+        padding-top: 14px;
+        padding-bottom: 14px;
+    }
+    
+    .form-control {
+        font-size: 16px; /* يمنع التكبير التلقائي في iOS */
+    }
+}
+
+/* تحسينات خاصة للوضع الليلي */
+@media (prefers-color-scheme: dark) {
+    /* تحسين التباين للألوان */
+    .dark-mode .btn-primary {
+        background: linear-gradient(135deg, var(--light-green), #34a853);
+    }
+    
+    .dark-mode .stat-number {
+        color: #e8f5e9;
+    }
+    
+    /* تحسين حدود البطاقات */
+    .dark-mode .card {
+        border-color: #2d2d2d;
+    }
+    
+    /* تحسين ألوان النصوص في الجداول */
+    .dark-mode .vault-table td {
+        color: #e0e0e0;
+    }
+}
+
+/* تحسينات للطباعة */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+        font-size: 12pt;
+    }
+    
+    .no-print {
+        display: none !important;
+    }
+    
+    .container {
+        max-width: 100%;
+        padding: 0;
+    }
+    
+    .card,
+    .vault-table,
+    .stat-card {
+        box-shadow: none !important;
+        border: 1px solid #ddd !important;
+        break-inside: avoid;
+    }
+    
+    .btn-primary,
+    .btn-secondary,
+    .btn-tertiary {
+        display: none !important;
+    }
+    
+    a {
+        color: black !important;
+        text-decoration: underline;
+    }
+    
+    .reservation-code {
+        font-size: 14pt;
+        border: 2px solid black !important;
+        background: white !important;
+        color: black !important;
+    }
+}
+
+/* دعم شاشات اللمس */
+@media (hover: none) and (pointer: coarse) {
+    .btn-primary,
+    .btn-secondary,
+    .btn-tertiary,
+    .btn-action {
+        min-height: 44px; /* الحد الأدنى لللمس في iOS */
+        min-width: 44px;
+    }
+    
+    .form-control {
+        min-height: 44px;
+    }
+    
+    /* زيادة مساحة النقر */
+    .main-nav a {
+        padding: 1rem 1.5rem;
+    }
+    
+    /* تحسين التفاعلات للشاشات التي تعمل باللمس */
+    .stat-card:hover,
+    .card:hover,
+    .action-btn:hover {
+        transform: none;
+    }
+    
+    .btn-primary:active,
+    .btn-secondary:active,
+    .btn-tertiary:active {
+        transform: scale(0.98);
+    }
+}
+
+/* تحسينات للأجهزة ذات العرض المحدود */
+@media (max-width: 400px) {
+    h1 { font-size: 1.75rem; }
+    h2 { font-size: 1.5rem; }
+    h3 { font-size: 1.25rem; }
+    h4 { font-size: 1.1rem; }
+    
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .reservation-code {
+        font-size: 1rem;
+        padding: 0.5rem;
+    }
+    
+    .form-section legend {
+        font-size: 1rem;
+    }
+}
+
+/* دعم متصفحات قديمة */
+@supports not (display: grid) {
+    .stats-grid {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+    
+    .stat-card {
+        flex: 1 0 250px;
+    }
+    
+    .distribution-grid {
+        display: flex;
+        flex-wrap: wrap;
+    }
+    
+    .province-list {
+        flex: 1 0 300px;
+    }
+    
+    .map-visualization {
+        flex: 2 0 300px;
+    }
+  }
