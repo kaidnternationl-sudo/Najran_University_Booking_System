@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>نظام حجز السكن الجامعي - جامعة نجران</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- رأس الصفحة -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-text">
+                    <h1>جامعة نجران</h1>
+                    <p>نظام حجز السكن الجامعي الذكي</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <!-- تم إزالة زر تبديل الوضع الليلي -->
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <!-- قسم الترحيب -->
+        <section class="hero-section card fade-in">
+            <div class="hero-content">
+                <h1 class="section-title">مرحباً بكم في نظام حجز السكن الجامعي</h1>
+                <p class="lead">نظام ذكي ومتكامل لتقديم طلبات السكن الجامعي وفق معايير العدالة والشفافية</p>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <span class="stat-number" id="totalStudents">0</span>
+                        <span class="stat-label">إجمالي المسجلين</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number" id="availableRooms">0</span>
+                        <span class="stat-label">غرف متاحة</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">نسبة الرضا</span>
+                    </div>
+                    <div class="stat-card">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">دعم فني</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم الإحصائيات -->
+        <section class="stats-section card fade-in">
+            <h2 class="section-title">إحصائيات النظام</h2>
+            
+            <div class="grid grid-3">
+                <div class="chart-container">
+                    <h3>التوزيع حسب الجنس</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="maleProgress" style="width: 60%"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span>ذكور: <span id="maleCount">0</span></span>
+                        <span>إناث: <span id="femaleCount">0</span></span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>معدل الإشغال</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="occupancyProgress" style="width: 75%"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span>الإشغال: <span id="occupancyRate">0%</span></span>
+                        <span>المتاحة: <span id="availableRate">0%</span></span>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <h3>المعدل التراكمي</h3>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="gpaProgress" style="width: 85%"></div>
+                    </div>
+                    <div class="progress-stats">
+                        <span>المتوسط: <span id="averageGPA">0.00</span></span>
+                        <span>الأعلى: <span id="maxGPA">0.00</span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم بدء التقديم -->
+        <section class="cta-section card fade-in">
+            <div class="cta-content">
+                <h2 class="section-title">ابدأ عملية التقديم الآن</h2>
+                <p>استكمل عملية التسجيل في 3 خطوات بسيطة:</p>
+                
+                <div class="steps-grid grid grid-3">
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-user-check"></i>
+                        </div>
+                        <h3>التحقق من الهوية</h3>
+                        <p>التأكد من هويتك عبر بوابة النفاذ الوطني</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3>اختيار السكن</h3>
+                        <p>اختر المبنى ونوع الغرفة المناسب لك</p>
+                    </div>
+                    
+                    <div class="step">
+                        <div class="step-icon">
+                            <i class="fas fa-file-contract"></i>
+                        </div>
+                        <h3>تأكيد الحجز</h3>
+                        <p>استلام رقم المرجع وتأكيد الحجز النهائي</p>
+                    </div>
+                </div>
+                
+                <div class="cta-buttons">
+                    <a href="registration.html" class="btn btn-primary">
+                        <i class="fas fa-play-circle"></i>
+                        بدء التقديم
+                    </a>
+                    <a href="#instructions" class="btn btn-secondary">
+                        <i class="fas fa-info-circle"></i>
+                        تعليمات التقديم
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- قسم التعليمات -->
+        <section id="instructions" class="instructions-section card fade-in">
+            <h2 class="section-title">تعليمات وشروط التقديم</h2>
+            
+            <div class="instructions-grid grid grid-2">
+                <div class="instruction">
+                    <h3><i class="fas fa-check-circle"></i> شروط الأهلية</h3>
+                    <ul>
+                        <li>أن يكون الطالب مسجلاً في جامعة نجران</li>
+                        <li>تقديم الهوية الوطنية أو الإقامة سارية المفعول</li>
+                        <li>دفع الرسوم الدراسية المستحقة</li>
+                        <li>عدم وجود مخالفات سكنية سابقة</li>
+                    </ul>
+                </div>
+                
+                <div class="instruction">
+                    <h3><i class="fas fa-file-alt"></i> المستندات المطلوبة</h3>
+                    <ul>
+                        <li>صورة الهوية الوطنية أو الإقامة</li>
+                        <li>صورة من السجل الأكاديمي</li>
+                        <li>صورة شخصية حديثة</li>
+                        <li>شهادة عدم ممانعة (للطالبات)</li>
+                    </ul>
+                </div>
+                
+                <div class="instruction">
+                    <h3><i class="fas fa-hand-holding-usd"></i> الرسوم والإعفاءات</h3>
+                    <ul>
+                        <li>الغرفة القياسية: 2,500 ريال/فصل</li>
+                        <li>الغرفة المتميزة: 4,000 ريال/فصل</li>
+                        <li>الإعفاء للمتفوقين: 50% للمعدل فوق 4.5</li>
+                        <li>خصم الأخوة: 20% للطلاب الأشقاء</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>جميع الحقوق محفوظة © جامعة نجران 2025</p>
+            <p>هذا النظام مطابق لمعايير المركز الوطني للأمن السيبراني</p>
+            
+            <div class="footer-links">
+                <a href="#"><i class="fas fa-shield-alt"></i> سياسة الخصوصية</a>
+                <a href="#"><i class="fas fa-file-contract"></i> الشروط والأحكام</a>
+                <a href="#"><i class="fas fa-question-circle"></i> الأسئلة الشائعة</a>
+                <a href="#"><i class="fas fa-phone-alt"></i> الدعم الفني</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- الروابط للصفحات الإدارية (مخفية) -->
+    <div style="display: none;">
+        <a href="admin-login.html">الدخول الإداري</a>
+        <a href="admin-vault.html">الخزنة</a>
+    </div>
+
+    <script src="js/vault.js"></script>
+    <script>
+        // تهيئة النظام
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث الإحصائيات
+            updateStatistics();
+            
+            // تحديث الإحصائيات كل 10 ثوانٍ
+            setInterval(updateStatistics, 10000);
+        });
+
+        // دالة تحديث الإحصائيات
+        function updateStatistics() {
+            const stats = studentVault.getStatistics();
+            const students = studentVault.getStudents();
+            
+            // تحديث الأرقام الرئيسية
+            document.getElementById('totalStudents').textContent = stats.total;
+            document.getElementById('availableRooms').textContent = stats.available;
+            
+            // تحديث توزيع الجنس
+            document.getElementById('maleCount').textContent = stats.genderStats['ذكر'] || 0;
+            document.getElementById('femaleCount').textContent = stats.genderStats['أنثى'] || 0;
+            
+            const malePercent = stats.total > 0 ? Math.round((stats.genderStats['ذكر'] || 0) / stats.total * 100) : 0;
+            document.getElementById('maleProgress').style.width = malePercent + '%';
+            
+            // تحديث معدل الإشغال
+            const occupancyPercent = Math.round((stats.total / stats.capacity) * 100);
+            document.getElementById('occupancyProgress').style.width = occupancyPercent + '%';
+            document.getElementById('occupancyRate').textContent = occupancyPercent + '%';
+            document.getElementById('availableRate').textContent = (100 - occupancyPercent) + '%';
+            
+            // تحديث المعدل التراكمي
+            document.getElementById('averageGPA').textContent = stats.averageGPA;
+            
+            // حساب أعلى معدل
+            if (students.length > 0) {
+                const maxGPA = Math.max(...students.map(s => parseFloat(s.gpa)));
+                document.getElementById('maxGPA').textContent = maxGPA.toFixed(2);
+                document.getElementById('gpaProgress').style.width = Math.round((maxGPA / 5) * 100) + '%';
+            }
+        }
+    </script>
+    
+    <style>
+        /* أنماط إضافية للصفحة الرئيسية */
+        .lead {
+            font-size: 1.2rem;
+            color: var(--gray-dark);
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .steps-grid {
+            margin: 2rem 0;
+        }
+        
+        .step {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .step-icon {
+            font-size: 3rem;
+            color: var(--secondary-green);
+            margin-bottom: 1rem;
+        }
+        
+        .step h3 {
+            color: var(--secondary-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .step p {
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+        
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .instruction {
+            padding: 1.5rem;
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--dark-border);
+        }
+        
+        .instruction h3 {
+            color: var(--secondary-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .instruction ul {
+            list-style-type: none;
+            padding-right: 0;
+        }
+        
+        .instruction li {
+            margin-bottom: 0.5rem;
+            padding-right: 1rem;
+            position: relative;
+        }
+        
+        .instruction li:before {
+            content: "•";
+            color: var(--accent-gold);
+            position: absolute;
+            right: 0;
+        }
+        
+        .chart-container {
+            background-color: rgba(255, 255, 255, 0.05);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid var(--dark-border);
+        }
+        
+        .chart-container h3 {
+            color: var(--secondary-green);
+            margin-bottom: 1rem;
+        }
+        
+        .progress-stats {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            color: var(--gray-medium);
+            font-size: 0.9rem;
+        }
+        
+        @media (max-width: 768px) {
+            .steps-grid.grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .instructions-grid.grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .cta-buttons {
+                flex-direction: column;
+            }
+        }
+    </style>
+</body>
+</html>
