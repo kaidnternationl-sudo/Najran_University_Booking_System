@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الدخول الإداري - نظام السكن الجامعي</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="vault-mode">
+    <div class="login-container">
+        <div class="vault-login-card">
+            <div class="vault-header">
+                <h1 class="vault-title">
+                    <i class="fas fa-shield-alt"></i>
+                    نظام الخزنة السرية
+                </h1>
+                <p class="vault-subtitle">جامعة نجران - إدارة السكن الجامعي</p>
+            </div>
+            
+            <div class="vault-login-form">
+                <div class="login-icon">
+                    <i class="fas fa-lock"></i>
+                </div>
+                
+                <div id="loginAlert" class="alert" style="display: none;"></div>
+                
+                <div class="form-group">
+                    <label for="passcode" class="form-label">
+                        <i class="fas fa-key"></i>
+                        الرمز السري للخزنة
+                    </label>
+                    <input type="password" 
+                           id="passcode" 
+                           class="form-control vault-input"
+                           placeholder="أدخل الرمز السري"
+                           maxlength="8"
+                           autocomplete="off">
+                    <small class="form-text">يجب أن يتكون الرمز من 8 أحرف/أرقام</small>
+                </div>
+                
+                <div class="form-group">
+                    <div class="captcha-container">
+                        <div class="captcha-display" id="captchaDisplay">NU2024</div>
+                        <button type="button" class="btn btn-secondary" id="refreshCaptcha">
+                            <i class="fas fa-redo"></i>
+                        </button>
+                    </div>
+                    <input type="text" 
+                           id="captchaInput" 
+                           class="form-control vault-input"
+                           placeholder="أدخل الرمز الظاهر أعلاه"
+                           autocomplete="off">
+                </div>
+                
+                <button class="btn btn-primary vault-btn" id="loginBtn">
+                    <i class="fas fa-unlock"></i>
+                    فتح الخزنة
+                </button>
+                
+                <div class="login-footer">
+                    <p class="security-note">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        هذا النظام محمي بموجب قانون الجرائم المعلوماتية
+                    </p>
+                    <p class="timestamp" id="loginTimestamp"></p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="vault-status">
+            <div class="status-item">
+                <i class="fas fa-database"></i>
+                <span>حالة الخادم: <span class="status-online">متصل</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-user-shield"></i>
+                <span>المستوى الأمني: <span class="status-high">عالي</span></span>
+            </div>
+            <div class="status-item">
+                <i class="fas fa-clock"></i>
+                <span>آخر دخول: <span id="lastLogin">غير معروف</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vault.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تحديث الطابع الزمني
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+            
+            // تحديث آخر دخول
+            updateLastLogin();
+            
+            // إعداد CAPTCHA
+            setupCaptcha();
+            
+            // إعداد زر الدخول
+            document.getElementById('loginBtn').addEventListener('click', handleLogin);
+            
+            // السماح بالدخول عند الضغط على Enter
+            document.getElementById('passcode').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+            
+            document.getElementById('captchaInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    handleLogin();
+                }
+            });
+        });
+        
+        function updateTimestamp() {
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+            const timeStr = now.toLocaleTimeString('ar-SA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            document.getElementById('loginTimestamp').textContent = 
+                `${dateStr} - ${timeStr}`;
+        }
+        
+        function updateLastLogin() {
+            const lastLogin = localStorage.getItem('lastAdminLogin');
+            if (lastLogin) {
+                const date = new Date(lastLogin);
+                document.getElementById('lastLogin').textContent = 
+                    date.toLocaleDateString('ar-SA') + ' ' + 
+                    date.toLocaleTimeString('ar-SA', {hour: '2-digit', minute: '2-digit'});
+            }
+        }
+        
+        function setupCaptcha() {
+            const captchaDisplay = document.getElementById('captchaDisplay');
+            const refreshBtn = document.getElementById('refreshCaptcha');
+            
+            // توليد CAPTCHA عشوائي
+            function generateCaptcha() {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let captcha = '';
+                for (let i = 0; i < 6; i++) {
+                    captcha += chars.charAt(Math.floor(Math.random() * chars.length));
+                }
+                sessionStorage.setItem('captcha', captcha);
+                captchaDisplay.textContent = captcha;
+            }
+            
+            generateCaptcha();
+            
+            refreshBtn.addEventListener('click', generateCaptcha);
+        }
+        
+        function showAlert(message, type = 'info') {
+            const alertDiv = document.getElementById('loginAlert');
+            alertDiv.textContent = message;
+            alertDiv.className = `alert alert-${type}`;
+            alertDiv.style.display = 'block';
+            
+            setTimeout(() => {
+                alertDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        function handleLogin() {
+            const passcode = document.getElementById('passcode').value;
+            const captchaInput = document.getElementById('captchaInput').value;
+            const storedCaptcha = sessionStorage.getItem('captcha');
+            
+            // التحقق من CAPTCHA
+            if (captchaInput !== storedCaptcha) {
+                showAlert('رمز التحقق غير صحيح', 'error');
+                setupCaptcha();
+                document.getElementById('captchaInput').value = '';
+                document.getElementById('captchaInput').focus();
+                return;
+            }
+            
+            // التحقق من الرمز السري
+            if (verifyVaultAccess(passcode)) {
+                // حفظ وقت الدخول
+                localStorage.setItem('lastAdminLogin', new Date().toISOString());
+                
+                // توجيه إلى الخزنة
+                window.location.href = 'admin-vault.html';
+            } else {
+                showAlert('الرمز السري غير صحيح', 'error');
+                document.getElementById('passcode').value = '';
+                document.getElementById('passcode').focus();
+                setupCaptcha();
+            }
+        }
+    </script>
+    
+    <style>
+        body.vault-mode {
+            background-color: #0a1929;
+            color: #00ff88;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        body.vault-mode::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(90deg, transparent 1px, rgba(0, 255, 136, 0.05) 1px) 0 0 / 20px 20px,
+                linear-gradient(transparent 1px, rgba(0, 255, 136, 0.05) 1px) 0 0 / 20px 20px;
+            animation: gridMove 20s linear infinite;
+        }
+        
+        @keyframes gridMove {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 20px 20px;
+            }
+        }
+        
+        .login-container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+            padding: 1rem;
+        }
+        
+        .vault-login-card {
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 2px solid #00ff88;
+            border-radius: 10px;
+            padding: 2rem;
+            box-shadow: 
+                0 0 30px rgba(0, 255, 136, 0.3),
+                inset 0 0 20px rgba(0, 255, 136, 0.1);
+            backdrop-filter: blur(10px);
+            animation: pulse 2s ease-in-out infinite alternate;
+        }
+        
+        @keyframes pulse {
+            from {
+                box-shadow: 
+                    0 0 30px rgba(0, 255, 136, 0.3),
+                    inset 0 0 20px rgba(0, 255, 136, 0.1);
+            }
+            to {
+                box-shadow: 
+                    0 0 40px rgba(0, 255, 136, 0.5),
+                    inset 0 0 30px rgba(0, 255, 136, 0.2);
+            }
+        }
+        
+        .vault-header {
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .vault-title {
+            color: #00ff88;
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .vault-subtitle {
+            color: #80ffc0;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .vault-login-form {
+            margin-bottom: 2rem;
+        }
+        
+        .login-icon {
+            text-align: center;
+            font-size: 4rem;
+            color: #00ff88;
+            margin-bottom: 1.5rem;
+            animation: lockPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes lockPulse {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            50% {
+                transform: scale(1.1);
+                opacity: 0.8;
+            }
+        }
+        
+        .vault-input {
+            background-color: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            font-family: 'Share Tech Mono', monospace;
+            padding: 0.75rem 1rem;
+        }
+        
+        .vault-input:focus {
+            border-color: #00cc66;
+            box-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
+            background-color: rgba(0, 30, 60, 0.8);
+        }
+        
+        .vault-btn {
+            background: linear-gradient(135deg, #00a85a, #00ff88);
+            border: none;
+            color: #0a1929;
+            font-weight: bold;
+            font-family: 'Share Tech Mono', monospace;
+            padding: 1rem 2rem;
+            width: 100%;
+            margin-top: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .vault-btn:hover {
+            background: linear-gradient(135deg, #00ff88, #00a85a);
+            transform: translateY(-2px);
+            box-shadow: 0 0 20px rgba(0, 255, 136, 0.5);
+        }
+        
+        .captcha-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .captcha-display {
+            flex: 1;
+            background-color: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00ff88;
+            padding: 0.75rem;
+            text-align: center;
+            font-family: 'Courier New', monospace;
+            font-size: 1.5rem;
+            font-weight: bold;
+            letter-spacing: 3px;
+            color: #00ff88;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .security-note {
+            color: #ff9966;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .timestamp {
+            color: #80ffc0;
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+        
+        .vault-status {
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 1px solid rgba(0, 255, 136, 0.3);
+            border-radius: 5px;
+            padding: 1rem;
+            margin-top: 1rem;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+        
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .status-item i {
+            color: #00ff88;
+        }
+        
+        .status-online {
+            color: #00ff88;
+            font-weight: bold;
+        }
+        
+        .status-high {
+            color: #ff9966;
+            font-weight: bold;
+        }
+        
+        @media (max-width: 768px) {
+            .vault-status {
+                grid-template-columns: 1fr;
+            }
+            
+            .vault-login-card {
+                padding: 1.5rem;
+            }
+            
+            .vault-title {
+                font-size: 1.5rem;
+            }
+        }
+        
+        /* تأثيرات الكتابة للرمز السري */
+        .vault-input::placeholder {
+            color: rgba(0, 255, 136, 0.5);
+            letter-spacing: 1px;
+        }
+        
+        /* تأثيرات التنبيه */
+        .alert-error {
+            background-color: rgba(255, 0, 0, 0.1);
+            border: 1px solid rgba(255, 0, 0, 0.3);
+            color: #ff6666;
+        }
+        
+        .alert {
+            border-radius: 5px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            font-family: 'Share Tech Mono', monospace;
+        }
+    </style>
+</body>
+</html>
