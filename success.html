@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>شكراً لتقديم طلبك - جامعة نجران</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-text">
+                    <h1>جامعة نجران</h1>
+                    <p>إيصال استلام الطلب</p>
+                </div>
+            </div>
+            <a href="index.html" class="btn btn-secondary">
+                <i class="fas fa-home"></i>
+                الرئيسية
+            </a>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="success-container card fade-in">
+            <div class="success-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1 class="success-title">شكراً لك على تقديم طلب السكن</h1>
+                <p class="success-subtitle">
+                    تم استلام طلبك بنجاح. سيتم التواصل معك من قبل عمادة الجامعة عبر رقم هاتفك أو بريدك الإلكتروني لاستكمال بقية الإجراءات وتسديد رسوم السكن.
+                </p>
+            </div>
+            
+            <div class="reference-card">
+                <h3><i class="fas fa-hashtag"></i> الرقم المرجعي لطلبك</h3>
+                <div class="reference-number" id="referenceNumber">
+                    جاري التحميل...
+                </div>
+                <p class="reference-date" id="submissionDate"></p>
+            </div>
+            
+            <div class="success-instructions">
+                <h3><i class="fas fa-info-circle"></i> معلومات هامة</h3>
+                <div class="instructions-grid grid grid-2">
+                    <div class="instruction">
+                        <i class="fas fa-phone"></i>
+                        <h4>التواصل</h4>
+                        <p>سنتواصل معك خلال 3 أيام عمل على الأكثر</p>
+                    </div>
+                    <div class="instruction">
+                        <i class="fas fa-clock"></i>
+                        <h4>المتابعة</h4>
+                        <p>يمكنك متابعة حالة طلبك عبر الرقم المرجعي أعلاه</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    طباعة الإيصال
+                </button>
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i>
+                    العودة للرئيسية
+                </a>
+            </div>
+            
+            <div class="success-note">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-circle"></i>
+                    <strong>ملاحظة هامة:</strong> احتفظ بالرقم المرجعي لمتابعة طلبك. تأكد من صحة رقم هاتفك وبريدك الإلكتروني لتلقي التواصل.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>عمادة شؤون الطلاب - جامعة نجران</p>
+            <p>هاتف: 8001248888 | بريد إلكتروني: housing@nu.edu.sa</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const submission = JSON.parse(sessionStorage.getItem('lastSubmission'));
+            
+            if (!submission) {
+                document.getElementById('referenceNumber').textContent = 'غير متوفر';
+                document.getElementById('submissionDate').textContent = 'لم يتم العثور على بيانات الطلب';
+                return;
+            }
+            
+            // عرض الرقم المرجعي
+            document.getElementById('referenceNumber').textContent = submission.referenceNumber;
+            
+            // عرض التاريخ
+            const date = new Date(submission.timestamp || Date.now());
+            const formattedDate = date.toLocaleDateString('ar-SA', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            document.getElementById('submissionDate').textContent = `تاريخ التقديم: ${formattedDate}`;
+            
+            // تنظيف التخزين بعد العرض
+            setTimeout(() => {
+                sessionStorage.removeItem('lastSubmission');
+            }, 5000);
+        });
+    </script>
+    
+    <style>
+        .success-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            text-align: center;
+        }
+        
+        .success-header {
+            margin-bottom: 3rem;
+        }
+        
+        .success-icon {
+            font-size: 5rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+            animation: bounce 2s ease infinite;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .success-title {
+            color: var(--secondary-green);
+            margin-bottom: 1rem;
+        }
+        
+        .success-subtitle {
+            color: var(--dark-text);
+            font-size: 1.2rem;
+            line-height: 1.8;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        
+        .reference-card {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: white;
+            padding: 2rem;
+            border-radius: var(--border-radius-md);
+            margin: 2rem 0;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .reference-card h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .reference-number {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 2px;
+            margin: 1rem 0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+        
+        .reference-date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .success-instructions {
+            margin: 3rem 0;
+        }
+        
+        .success-instructions h3 {
+            color: var(--secondary-green);
+            margin-bottom: 2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .instruction {
+            text-align: center;
+            padding: 1.5rem;
+            background: rgba(255,255,255,0.05);
+            border-radius: var(--border-radius-md);
+            border: 1px solid var(--dark-border);
+        }
+        
+        .instruction i {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+        
+        .instruction h4 {
+            color: var(--secondary-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .success-note {
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .reference-number {
+                font-size: 1.8rem;
+            }
+            
+            .success-actions {
+                flex-direction: column;
+            }
+            
+            .instructions-grid.grid-2 {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media print {
+            .success-actions,
+            .footer,
+            .header-actions {
+                display: none !important;
+            }
+            
+            .success-container {
+                box-shadow: none;
+                border: 2px solid #000;
+            }
+        }
+    </style>
+</body>
+</html>
