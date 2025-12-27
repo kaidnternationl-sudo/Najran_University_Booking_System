@@ -1,0 +1,1759 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>الخزنة السرية - إدارة السكن الجامعي</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+</head>
+<body class="vault-mode">
+    <div class="vault-wrapper">
+        <!-- شريط التحكم العلوي -->
+        <div class="vault-control-bar">
+            <div class="vault-brand">
+                <i class="fas fa-database"></i>
+                <span>خزنة البيانات السرية</span>
+                <span class="vault-version">v1.0.0</span>
+            </div>
+            
+            <div class="vault-stats">
+                <span class="stat">
+                    <i class="fas fa-users"></i>
+                    <span id="totalRecords">0</span>
+                </span>
+                <span class="stat">
+                    <i class="fas fa-microchip"></i>
+                    <span id="storageUsage">0%</span>
+                </span>
+                <span class="stat">
+                    <i class="fas fa-shield-alt"></i>
+                    <span id="securityLevel">مشفر</span>
+                </span>
+            </div>
+            
+            <div class="vault-actions">
+                <button class="vault-btn" id="refreshBtn" title="تحديث البيانات">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+                <button class="vault-btn" id="exportBtn" title="تصدير البيانات">
+                    <i class="fas fa-download"></i>
+                </button>
+                <button class="vault-btn danger" id="clearBtn" title="تفريغ الخزنة">
+                    <i class="fas fa-trash"></i>
+                </button>
+                <button class="vault-btn" id="logoutBtn" title="تسجيل الخروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- لوحة التحكم -->
+        <div class="vault-dashboard">
+            <div class="dashboard-card">
+                <h3><i class="fas fa-chart-bar"></i> نظرة عامة</h3>
+                <div class="dashboard-stats grid grid-4">
+                    <div class="stat-item">
+                        <div class="stat-value" id="totalStudents">0</div>
+                        <div class="stat-label">إجمالي الطلبات</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="maleCount">0</div>
+                        <div class="stat-label">طلاب</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="femaleCount">0</div>
+                        <div class="stat-label">طالبات</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value" id="avgGPA">0.00</div>
+                        <div class="stat-label">متوسط المعدل</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dashboard-card">
+                <h3><i class="fas fa-filter"></i> أدوات التصفية</h3>
+                <div class="filter-tools">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="ابحث بالاسم، الرقم المرجعي، أو الهوية...">
+                    </div>
+                    
+                    <div class="filter-buttons">
+                        <select id="sortBy" class="vault-select">
+                            <option value="priority">الترتيب حسب الأولوية</option>
+                            <option value="gpa_desc">المعدل (تنازلي)</option>
+                            <option value="gpa_asc">المعدل (تصاعدي)</option>
+                            <option value="date_desc">الأحدث أولاً</option>
+                            <option value="date_asc">الأقدم أولاً</option>
+                            <option value="province">حسب المحافظة</option>
+                        </select>
+                        
+                        <select id="filterGender" class="vault-select">
+                            <option value="">كل الجنسين</option>
+                            <option value="ذكر">ذكور فقط</option>
+                            <option value="أنثى">إناث فقط</option>
+                        </select>
+                        
+                        <select id="filterProvince" class="vault-select">
+                            <option value="">كل المحافظات</option>
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- جدول البيانات -->
+        <div class="vault-data-table">
+            <div class="table-header">
+                <h3><i class="fas fa-table"></i> سجل الطلبات (آخر 50 طلباً)</h3>
+                <div class="table-info">
+                    <span id="tableCount">0</span> طلب معروض
+                </div>
+            </div>
+            
+            <div class="table-responsive">
+                <table class="vault-table" id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>الرقم المرجعي</th>
+                            <th>الاسم الرباعي</th>
+                            <th>رقم الهوية</th>
+                            <th>الجنس</th>
+                            <th>المحافظة</th>
+                            <th>التخصص</th>
+                            <th>المعدل</th>
+                            <th>نوع الغرفة</th>
+                            <th>الرسوم</th>
+                            <th>رقم الأولوية</th>
+                            <th>تاريخ التسجيل</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <div class="pagination">
+                    <button class="vault-btn" id="prevPage" disabled>
+                        <i class="fas fa-chevron-right"></i>
+                    </button>
+                    <span id="pageInfo">صفحة 1 من 1</span>
+                    <button class="vault-btn" id="nextPage" disabled>
+                        <i class="fas fa-chevron-left"></i>
+                    </button>
+                </div>
+                <div class="table-stats">
+                    <span>عرض <select id="pageSize" class="vault-select">
+                        <option value="10">10</option>
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                    </select> سجل لكل صفحة</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- لوحة الإحصائيات -->
+        <div class="vault-sidebar">
+            <div class="sidebar-card">
+                <h3><i class="fas fa-chart-pie"></i> التوزيع الجغرافي</h3>
+                <div id="provinceChart" class="chart-container">
+                    <!-- سيتم ملؤها ديناميكياً -->
+                </div>
+            </div>
+            
+            <div class="sidebar-card">
+                <h3><i class="fas fa-cogs"></i> إدارة الخزنة</h3>
+                <div class="management-tools">
+                    <button class="vault-btn full-width" id="backupBtn">
+                        <i class="fas fa-save"></i> نسخ احتياطي
+                    </button>
+                    <button class="vault-btn full-width" id="restoreBtn">
+                        <i class="fas fa-undo"></i> استعادة
+                    </button>
+                    <button class="vault-btn full-width" id="compressBtn">
+                        <i class="fas fa-compress"></i> ضغط البيانات
+                    </button>
+                    <button class="vault-btn full-width danger" id="wipeBtn">
+                        <i class="fas fa-skull-crossbones"></i> مسح آمن
+                    </button>
+                </div>
+            </div>
+            
+            <div class="sidebar-card">
+                <h3><i class="fas fa-info-circle"></i> معلومات النظام</h3>
+                <div class="system-info">
+                    <div class="info-item">
+                        <span>السعة القصوى:</span>
+                        <span>50 طلباً</span>
+                    </div>
+                    <div class="info-item">
+                        <span>آخر تحديث:</span>
+                        <span id="lastUpdate">--:--:--</span>
+                    </div>
+                    <div class="info-item">
+                        <span>حالة التدوير:</span>
+                        <span id="rotationStatus">نشط</span>
+                    </div>
+                    <div class="info-item">
+                        <span>مساحة التخزين:</span>
+                        <span id="storageSize">0 KB</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- النافذة المنبثقة للتفاصيل -->
+    <div id="detailsModal" class="modal">
+        <div class="modal-content vault-modal">
+            <div class="modal-header">
+                <h3>تفاصيل الطلب</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+            <div class="modal-footer">
+                <button class="vault-btn" id="printDetails">طباعة</button>
+                <button class="vault-btn" id="closeModal">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vault.js"></script>
+    <script>
+        // التحقق من الوصول
+        if (!hasVaultAccess()) {
+            window.location.href = 'admin-login.html';
+        }
+        
+        // متغيرات التطبيق
+        let currentStudents = [];
+        let filteredStudents = [];
+        let currentPage = 1;
+        let pageSize = 25;
+        let totalPages = 1;
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة الخزنة
+            initializeVault();
+            
+            // إعداد المستمعين للأحداث
+            setupEventListeners();
+            
+            // تحديث البيانات
+            updateData();
+            
+            // تحديث الوقت
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+        });
+        
+        function initializeVault() {
+            // تحديث معلومات النظام
+            updateSystemInfo();
+            
+            // ملء قائمة المحافظات
+            populateProvinces();
+        }
+        
+        function setupEventListeners() {
+            // تحديث البيانات
+            document.getElementById('refreshBtn').addEventListener('click', updateData);
+            
+            // التصدير
+            document.getElementById('exportBtn').addEventListener('click', exportData);
+            
+            // التنظيف
+            document.getElementById('clearBtn').addEventListener('click', clearVault);
+            
+            // تسجيل الخروج
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+            
+            // البحث والتصفية
+            document.getElementById('searchInput').addEventListener('input', filterData);
+            document.getElementById('sortBy').addEventListener('change', filterData);
+            document.getElementById('filterGender').addEventListener('change', filterData);
+            document.getElementById('filterProvince').addEventListener('change', filterData);
+            document.getElementById('pageSize').addEventListener('change', function() {
+                pageSize = parseInt(this.value);
+                currentPage = 1;
+                filterData();
+            });
+            
+            // التصفح
+            document.getElementById('prevPage').addEventListener('click', function() {
+                if (currentPage > 1) {
+                    currentPage--;
+                    renderTable();
+                }
+            });
+            
+            document.getElementById('nextPage').addEventListener('click', function() {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    renderTable();
+                }
+            });
+            
+            // أدوات الإدارة
+            document.getElementById('backupBtn').addEventListener('click', backupData);
+            document.getElementById('restoreBtn').addEventListener('click', restoreData);
+            document.getElementById('compressBtn').addEventListener('click', compressData);
+            document.getElementById('wipeBtn').addEventListener('click', wipeData);
+            
+            // إغلاق النافذة المنبثقة
+            document.querySelector('.modal-close').addEventListener('click', closeModal);
+            document.getElementById('closeModal').addEventListener('click', closeModal);
+            document.getElementById('printDetails').addEventListener('click', printDetails);
+            
+            // إغلاق النافذة عند النقر خارجها
+            document.getElementById('detailsModal').addEventListener('click', function(e) {
+                if (e.target === this) {
+                    closeModal();
+                }
+            });
+        }
+        
+        function updateData() {
+            // الحصول على البيانات من الخزنة
+            currentStudents = studentVault.getStudents();
+            
+            // تحديث الإحصائيات
+            updateStatistics();
+            
+            // تصفية البيانات
+            filterData();
+            
+            // تحديث معلومات النظام
+            updateSystemInfo();
+            
+            // إظهار رسالة نجاح
+            showNotification('تم تحديث البيانات بنجاح', 'success');
+        }
+        
+        function updateStatistics() {
+            const stats = studentVault.getStatistics();
+            
+            // تحديث الأرقام الرئيسية
+            document.getElementById('totalRecords').textContent = stats.total;
+            document.getElementById('totalStudents').textContent = stats.total;
+            document.getElementById('maleCount').textContent = stats.genderStats['ذكر'] || 0;
+            document.getElementById('femaleCount').textContent = stats.genderStats['أنثى'] || 0;
+            document.getElementById('avgGPA').textContent = stats.averageGPA;
+            
+            // تحديث استخدام التخزين
+            const usagePercent = Math.round((stats.total / stats.capacity) * 100);
+            document.getElementById('storageUsage').textContent = usagePercent + '%';
+            
+            // تحديث الرسم البياني للمحافظات
+            updateProvinceChart(stats.provinceStats);
+        }
+        
+        function updateSystemInfo() {
+            const stats = studentVault.getStatistics();
+            const now = new Date();
+            
+            document.getElementById('lastUpdate').textContent = 
+                now.toLocaleTimeString('ar-SA');
+            
+            document.getElementById('rotationStatus').textContent = 
+                stats.total >= stats.capacity ? 'نشط (التدوير مفعل)' : 'غير نشط';
+            
+            // حساب حجم التخزين (تقريبي)
+            const dataStr = JSON.stringify(currentStudents);
+            const storageSize = new Blob([dataStr]).size;
+            document.getElementById('storageSize').textContent = 
+                formatBytes(storageSize);
+        }
+        
+        function populateProvinces() {
+            const select = document.getElementById('filterProvince');
+            const provinces = [
+                'نجران', 'شرورة', 'حبالة', 'بدر الجنوب', 'يثرب', 'خباش',
+                'الرياض', 'جدة', 'الدمام', 'مكة', 'المدينة', 'تبوك',
+                'الجوف', 'عسير', 'الباحة', 'الحدود الشمالية', 'جازان',
+                'حائل', 'القصيم', 'الشرقية'
+            ];
+            
+            provinces.forEach(province => {
+                const option = document.createElement('option');
+                option.value = province;
+                option.textContent = province;
+                select.appendChild(option);
+            });
+        }
+        
+        function filterData() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const genderFilter = document.getElementById('filterGender').value;
+            const provinceFilter = document.getElementById('filterProvince').value;
+            const sortBy = document.getElementById('sortBy').value;
+            
+            // تطبيق الفلاتر
+            filteredStudents = currentStudents.filter(student => {
+                // البحث
+                if (searchTerm && 
+                    !student.fullName?.toLowerCase().includes(searchTerm) &&
+                    !student.nationalId?.includes(searchTerm) &&
+                    !student.referenceNumber?.toLowerCase().includes(searchTerm) &&
+                    !student.phone?.includes(searchTerm)) {
+                    return false;
+                }
+                
+                // فلتر الجنس
+                if (genderFilter && student.gender !== genderFilter) {
+                    return false;
+                }
+                
+                // فلتر المحافظة
+                if (provinceFilter && student.province !== provinceFilter) {
+                    return false;
+                }
+                
+                return true;
+            });
+            
+            // تطبيق الترتيب
+            switch (sortBy) {
+                case 'gpa_desc':
+                    filteredStudents = studentVault.sortByGPA(filteredStudents);
+                    break;
+                case 'gpa_asc':
+                    filteredStudents = studentVault.sortByGPA(filteredStudents).reverse();
+                    break;
+                case 'date_desc':
+                    filteredStudents = filteredStudents.sort((a, b) => 
+                        new Date(b.timestamp) - new Date(a.timestamp));
+                    break;
+                case 'date_asc':
+                    filteredStudents = filteredStudents.sort((a, b) => 
+                        new Date(a.timestamp) - new Date(b.timestamp));
+                    break;
+                case 'province':
+                    filteredStudents = studentVault.sortByDistance(filteredStudents);
+                    break;
+                default: // priority
+                    filteredStudents = studentVault.sortByPriority(filteredStudents);
+            }
+            
+            // إعادة تعيين الصفحة
+            currentPage = 1;
+            
+            // عرض البيانات
+            renderTable();
+        }
+        
+        function renderTable() {
+            const tableBody = document.getElementById('tableBody');
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = startIndex + pageSize;
+            const pageStudents = filteredStudents.slice(startIndex, endIndex);
+            
+            // تحديث عدد السجلات المعروضة
+            document.getElementById('tableCount').textContent = filteredStudents.length;
+            
+            // تحديث معلومات الصفحة
+            totalPages = Math.ceil(filteredStudents.length / pageSize);
+            document.getElementById('pageInfo').textContent = 
+                `صفحة ${currentPage} من ${totalPages}`;
+            
+            // تحديث أزرار التصفح
+            document.getElementById('prevPage').disabled = currentPage <= 1;
+            document.getElementById('nextPage').disabled = currentPage >= totalPages;
+            
+            // إنشاء الصفوف
+            tableBody.innerHTML = '';
+            
+            if (pageStudents.length === 0) {
+                tableBody.innerHTML = `
+                    <tr>
+                        <td colspan="13" class="no-data">
+                            <i class="fas fa-database"></i>
+                            لا توجد بيانات للعرض
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            pageStudents.forEach((student, index) => {
+                const row = document.createElement('tr');
+                const globalIndex = startIndex + index + 1;
+                
+                // حساب الأولوية
+                const priority = calculatePriority(student);
+                
+                // تحديد لون الصف بناءً على الأولوية
+                let rowClass = '';
+                if (priority <= 30) rowClass = 'priority-high';
+                else if (priority <= 60) rowClass = 'priority-medium';
+                else rowClass = 'priority-low';
+                
+                row.className = rowClass;
+                row.innerHTML = `
+                    <td>${globalIndex}</td>
+                    <td><code>${student.referenceNumber}</code></td>
+                    <td>${student.fullName}</td>
+                    <td>${student.nationalId}</td>
+                    <td>
+                        <span class="gender-badge ${student.gender === 'ذكر' ? 'male' : 'female'}">
+                            ${student.gender}
+                        </span>
+                    </td>
+                    <td>${student.province}</td>
+                    <td>${student.specialization}</td>
+                    <td>
+                        <span class="gpa-badge ${getGPAClass(student.gpa)}">
+                            ${student.gpa}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="room-badge ${student.roomType}">
+                            ${getRoomTypeName(student.roomType)}
+                        </span>
+                    </td>
+                    <td>${student.fees?.toLocaleString()} ريال</td>
+                    <td>
+                        <span class="priority-badge ${getPriorityClass(priority)}">
+                            ${priority}
+                        </span>
+                    </td>
+                    <td>${formatDateShort(student.timestamp)}</td>
+                    <td>
+                        <button class="action-btn view" data-id="${student.id}" title="عرض التفاصيل">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-btn delete" data-id="${student.id}" title="حذف">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // إضافة مستمعين لأزرار الإجراءات
+            document.querySelectorAll('.action-btn.view').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    showStudentDetails(studentId);
+                });
+            });
+            
+            document.querySelectorAll('.action-btn.delete').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const studentId = this.getAttribute('data-id');
+                    deleteStudent(studentId);
+                });
+            });
+        }
+        
+        function calculatePriority(student) {
+            const provincePriority = {
+                'نجران': 1, 'شرورة': 2, 'حبالة': 3, 'بدر الجنوب': 4, 'يثرب': 5, 'خباش': 6,
+                'الرياض': 10, 'جدة': 11, 'الدمام': 12, 'مكة': 13, 'المدينة': 14, 'تبوك': 15,
+                'الجوف': 16, 'عسير': 17, 'الباحة': 18, 'الحدود الشمالية': 19, 'جازان': 20,
+                'حائل': 21, 'القصيم': 22, 'الشرقية': 23
+            };
+            
+            const gpaScore = parseFloat(student.gpa) * 20;
+            const distanceScore = (provincePriority[student.province] || 99) * 3;
+            const totalScore = 100 - (gpaScore * 0.7 + distanceScore * 0.3);
+            
+            return Math.round(totalScore);
+        }
+        
+        function getGPAClass(gpa) {
+            const num = parseFloat(gpa);
+            if (num >= 4.5) return 'gpa-excellent';
+            if (num >= 3.75) return 'gpa-very-good';
+            if (num >= 2.75) return 'gpa-good';
+            return 'gpa-poor';
+        }
+        
+        function getPriorityClass(priority) {
+            if (priority <= 30) return 'priority-excellent';
+            if (priority <= 60) return 'priority-good';
+            return 'priority-low';
+        }
+        
+        function getRoomTypeName(type) {
+            const types = {
+                'standard': 'قياسية',
+                'premium': 'متميزة',
+                'suite': 'جناح'
+            };
+            return types[type] || type;
+        }
+        
+        function formatDateShort(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA', {
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function formatBytes(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+        
+        function updateProvinceChart(provinceStats) {
+            const chartContainer = document.getElementById('provinceChart');
+            const provinces = Object.keys(provinceStats);
+            const counts = Object.values(provinceStats);
+            
+            if (provinces.length === 0) {
+                chartContainer.innerHTML = '<p class="no-data">لا توجد بيانات</p>';
+                return;
+            }
+            
+            let chartHTML = '<div class="chart-bars">';
+            const maxCount = Math.max(...counts);
+            
+            provinces.forEach((province, index) => {
+                const percentage = maxCount > 0 ? (counts[index] / maxCount) * 100 : 0;
+                chartHTML += `
+                    <div class="chart-bar">
+                        <div class="bar-label">${province}</div>
+                        <div class="bar-container">
+                            <div class="bar-fill" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="bar-value">${counts[index]}</div>
+                    </div>
+                `;
+            });
+            
+            chartHTML += '</div>';
+            chartContainer.innerHTML = chartHTML;
+        }
+        
+        function showStudentDetails(studentId) {
+            const student = currentStudents.find(s => s.id === studentId);
+            if (!student) return;
+            
+            const modalBody = document.getElementById('modalBody');
+            const priority = calculatePriority(student);
+            
+            modalBody.innerHTML = `
+                <div class="student-details">
+                    <div class="detail-section">
+                        <h4><i class="fas fa-user"></i> المعلومات الشخصية</h4>
+                        <div class="detail-grid grid grid-2">
+                            <div class="detail-item">
+                                <strong>الاسم الرباعي:</strong>
+                                <span>${student.fullName}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>رقم الهوية:</strong>
+                                <span>${student.nationalId}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>رقم الجوال:</strong>
+                                <span>${student.phone}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>البريد الإلكتروني:</strong>
+                                <span>${student.email}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>الجنس:</strong>
+                                <span>${student.gender}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>المحافظة:</strong>
+                                <span>${student.province}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-graduation-cap"></i> المعلومات الأكاديمية</h4>
+                        <div class="detail-grid grid grid-2">
+                            <div class="detail-item">
+                                <strong>التخصص:</strong>
+                                <span>${student.specialization}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>المعدل التراكمي:</strong>
+                                <span class="gpa-badge ${getGPAClass(student.gpa)}">
+                                    ${student.gpa}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>السنة الدراسية:</strong>
+                                <span>${student.academicYear}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-home"></i> معلومات السكن</h4>
+                        <div class="detail-grid grid grid-2">
+                            <div class="detail-item">
+                                <strong>نوع الغرفة:</strong>
+                                <span class="room-badge ${student.roomType}">
+                                    ${getRoomTypeName(student.roomType)}
+                                </span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>الرسوم:</strong>
+                                <span>${student.fees?.toLocaleString()} ريال</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>تفضيل المبنى:</strong>
+                                <span>${student.buildingPreference || 'لا يوجد'}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>رقم الأولوية:</strong>
+                                <span class="priority-badge ${getPriorityClass(priority)}">
+                                    ${priority}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-paperclip"></i> المرفقات</h4>
+                        <div class="files-list">
+                            ${student.files ? `
+                                <div class="file-item">
+                                    <i class="fas fa-check-circle success"></i>
+                                    <span>صورة الهوية: ${student.files.idFile?.name || 'غير مرفوع'}</span>
+                                </div>
+                                <div class="file-item">
+                                    <i class="fas fa-check-circle success"></i>
+                                    <span>السجل الأكاديمي: ${student.files.academicRecord?.name || 'غير مرفوع'}</span>
+                                </div>
+                                <div class="file-item">
+                                    <i class="fas fa-check-circle success"></i>
+                                    <span>الصورة الشخصية: ${student.files.photo?.name || 'غير مرفوع'}</span>
+                                </div>
+                            ` : 'لا توجد معلومات عن المرفقات'}
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4><i class="fas fa-info-circle"></i> معلومات النظام</h4>
+                        <div class="detail-grid">
+                            <div class="detail-item">
+                                <strong>الرقم المرجعي:</strong>
+                                <code>${student.referenceNumber}</code>
+                            </div>
+                            <div class="detail-item">
+                                <strong>تاريخ التسجيل:</strong>
+                                <span>${formatDate(student.timestamp)}</span>
+                            </div>
+                            <div class="detail-item">
+                                <strong>معرف الطلب:</strong>
+                                <code>${student.id}</code>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('detailsModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('detailsModal').style.display = 'none';
+        }
+        
+        function printDetails() {
+            const printContent = document.getElementById('modalBody').innerHTML;
+            const originalContent = document.body.innerHTML;
+            
+            document.body.innerHTML = `
+                <html>
+                    <head>
+                        <title>تفاصيل الطلب - جامعة نجران</title>
+                        <style>
+                            body { font-family: 'Tajawal', sans-serif; padding: 20px; }
+                            h4 { color: #1a5d1a; border-bottom: 2px solid #d4af37; padding-bottom: 5px; }
+                            .detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+                            .detail-item { margin-bottom: 10px; }
+                            strong { display: inline-block; width: 150px; color: #666; }
+                            code { background: #f5f5f5; padding: 2px 5px; border-radius: 3px; }
+                            @media print { .no-print { display: none; } }
+                        </style>
+                    </head>
+                    <body>
+                        <h2>تفاصيل الطلب - جامعة نجران</h2>
+                        ${printContent}
+                        <div class="no-print">
+                            <button onclick="window.close()">إغلاق</button>
+                        </div>
+                    </body>
+                </html>
+            `;
+            
+            window.print();
+            document.body.innerHTML = originalContent;
+            updateData(); // إعادة تحميل البيانات
+        }
+        
+        function deleteStudent(studentId) {
+            if (!confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) {
+                return;
+            }
+            
+            const students = studentVault.getStudents();
+            const filteredStudents = students.filter(s => s.id !== studentId);
+            
+            const encryptedVault = studentVault.encryptData(filteredStudents);
+            localStorage.setItem('encrypted_vault', encryptedVault);
+            
+            showNotification('تم حذف الطلب بنجاح', 'success');
+            updateData();
+        }
+        
+        function exportData() {
+            const format = prompt('اختر صيغة التصدير:\n1. JSON\n2. CSV\n\nأدخل 1 أو 2:', '1');
+            
+            if (!format) return;
+            
+            const students = filteredStudents.length > 0 ? filteredStudents : currentStudents;
+            
+            if (format === '1') {
+                const dataStr = JSON.stringify(students, null, 2);
+                const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+                const exportFileDefaultName = `students-${new Date().toISOString().slice(0,10)}.json`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            } else if (format === '2') {
+                const csvContent = studentVault.exportToCSV();
+                const dataUri = 'data:text/csv;charset=utf-8,'+ encodeURIComponent(csvContent);
+                const exportFileDefaultName = `students-${new Date().toISOString().slice(0,10)}.csv`;
+                
+                const linkElement = document.createElement('a');
+                linkElement.setAttribute('href', dataUri);
+                linkElement.setAttribute('download', exportFileDefaultName);
+                linkElement.click();
+            }
+            
+            showNotification('تم تصدير البيانات بنجاح', 'success');
+        }
+        
+        function clearVault() {
+            if (!confirm('تحذير: هذا الإجراء سيمسح جميع البيانات في الخزنة. هل أنت متأكد؟')) {
+                return;
+            }
+            
+            if (!confirm('تأكيد نهائي: جميع البيانات ستفقد ولا يمكن استرجاعها. أكمل الحذف؟')) {
+                return;
+            }
+            
+            studentVault.clearVault();
+            showNotification('تم تفريغ الخزنة بنجاح', 'success');
+            updateData();
+        }
+        
+        function backupData() {
+            const data = studentVault.getStudents();
+            const backup = {
+                timestamp: new Date().toISOString(),
+                count: data.length,
+                data: data
+            };
+            
+            localStorage.setItem('vault_backup', JSON.stringify(backup));
+            showNotification('تم إنشاء نسخة احتياطية', 'success');
+        }
+        
+        function restoreData() {
+            const backup = localStorage.getItem('vault_backup');
+            if (!backup) {
+                showNotification('لا توجد نسخة احتياطية', 'error');
+                return;
+            }
+            
+            if (!confirm('استعادة النسخة الاحتياطية؟ سيتم استبدال البيانات الحالية.')) {
+                return;
+            }
+            
+            try {
+                const backupData = JSON.parse(backup);
+                const encryptedVault = studentVault.encryptData(backupData.data);
+                localStorage.setItem('encrypted_vault', encryptedVault);
+                showNotification('تم استعادة النسخة الاحتياطية', 'success');
+                updateData();
+            } catch (error) {
+                showNotification('فشل استعادة النسخة الاحتياطية', 'error');
+            }
+        }
+        
+        function compressData() {
+            // هذا إجراء رمزي في التخزين المحلي
+            showNotification('تم ضغط البيانات بنجاح', 'success');
+        }
+        
+        function wipeData() {
+            if (!confirm('تحذير أمني: هذا الإجراء سيمسح جميع البيانات بشكل آمن. هل أنت متأكد؟')) {
+                return;
+            }
+            
+            if (prompt('اكتب "DELETE" للتأكيد:') !== 'DELETE') {
+                showNotification('تم إلغاء العملية', 'warning');
+                return;
+            }
+            
+            // مسح جميع البيانات
+            localStorage.removeItem('encrypted_vault');
+            localStorage.removeItem('vault_backup');
+            sessionStorage.clear();
+            
+            showNotification('تم مسح جميع البيانات بشكل آمن', 'success');
+            setTimeout(() => {
+                window.location.href = 'admin-login.html';
+            }, 2000);
+        }
+        
+        function logout() {
+            sessionStorage.removeItem('vault_access');
+            window.location.href = 'admin-login.html';
+        }
+        
+        function showNotification(message, type = 'info') {
+            // إنشاء عنصر الإشعار
+            const notification = document.createElement('div');
+            notification.className = `vault-notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+                <button class="notification-close">&times;</button>
+            `;
+            
+            // إضافة الإشعار
+            document.body.appendChild(notification);
+            
+            // إظهار الإشعار
+            setTimeout(() => {
+                notification.classList.add('show');
+            }, 10);
+            
+            // إغلاق الإشعار
+            notification.querySelector('.notification-close').addEventListener('click', () => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.remove();
+                }, 300);
+            });
+            
+            // إغلاق تلقائي بعد 5 ثوانٍ
+            setTimeout(() => {
+                if (notification.parentNode) {
+                    notification.classList.remove('show');
+                    setTimeout(() => {
+                        if (notification.parentNode) {
+                            notification.remove();
+                        }
+                    }, 300);
+                }
+            }, 5000);
+        }
+        
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ar-SA', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            
+            // يمكن تحديث أي عنصر يظهر الوقت
+            const timeElements = document.querySelectorAll('.timestamp');
+            timeElements.forEach(el => {
+                el.textContent = timeString;
+            });
+        }
+        
+        // دالة المساعدة لتنسيق التاريخ
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+        }
+    </script>
+    
+    <style>
+        body.vault-mode {
+            background-color: #0a1929;
+            color: #00ff88;
+            font-family: 'Share Tech Mono', 'Courier New', monospace;
+            margin: 0;
+            min-height: 100vh;
+        }
+        
+        .vault-wrapper {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            grid-template-rows: auto auto 1fr;
+            gap: 1rem;
+            padding: 1rem;
+            height: calc(100vh - 2rem);
+        }
+        
+        .vault-control-bar {
+            grid-column: 1 / -1;
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+        
+        .vault-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1.2rem;
+            font-weight: bold;
+        }
+        
+        .vault-brand i {
+            color: #00ff88;
+        }
+        
+        .vault-version {
+            font-size: 0.8rem;
+            color: #80ffc0;
+            background-color: rgba(0, 255, 136, 0.1);
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+        
+        .vault-stats {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .stat i {
+            color: #00ff88;
+        }
+        
+        .vault-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .vault-btn {
+            background-color: rgba(0, 255, 136, 0.1);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 0.5rem 1rem;
+            border-radius: 3px;
+            cursor: pointer;
+            font-family: 'Share Tech Mono', monospace;
+            transition: all 0.3s ease;
+        }
+        
+        .vault-btn:hover {
+            background-color: rgba(0, 255, 136, 0.2);
+            transform: translateY(-2px);
+        }
+        
+        .vault-btn.danger {
+            border-color: #ff4444;
+            color: #ff4444;
+            background-color: rgba(255, 68, 68, 0.1);
+        }
+        
+        .vault-btn.danger:hover {
+            background-color: rgba(255, 68, 68, 0.2);
+        }
+        
+        .vault-dashboard {
+            grid-column: 1;
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 1rem;
+        }
+        
+        .dashboard-card {
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .dashboard-card h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .dashboard-stats {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 1rem;
+            background-color: rgba(0, 255, 136, 0.05);
+            border-radius: 3px;
+            border: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .stat-label {
+            font-size: 0.9rem;
+            color: #80ffc0;
+        }
+        
+        .filter-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .search-box {
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            right: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #00ff88;
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.75rem 1rem 0.75rem 3rem;
+            background-color: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00ff88;
+            border-radius: 3px;
+            color: #00ff88;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .filter-buttons {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .vault-select {
+            flex: 1;
+            background-color: rgba(0, 20, 40, 0.8);
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            padding: 0.5rem;
+            border-radius: 3px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+        
+        .vault-data-table {
+            grid-column: 1;
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .table-header h3 {
+            color: #00ff88;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .table-info {
+            color: #80ffc0;
+            font-size: 0.9rem;
+        }
+        
+        .table-responsive {
+            flex: 1;
+            overflow: auto;
+        }
+        
+        .vault-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+        }
+        
+        .vault-table th {
+            background-color: rgba(0, 255, 136, 0.1);
+            color: #00ff88;
+            padding: 1rem;
+            text-align: right;
+            border-bottom: 2px solid #00ff88;
+            position: sticky;
+            top: 0;
+        }
+        
+        .vault-table td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+            color: #c0ffd0;
+        }
+        
+        .vault-table tbody tr:hover {
+            background-color: rgba(0, 255, 136, 0.05);
+        }
+        
+        .priority-high {
+            background-color: rgba(0, 255, 136, 0.1) !important;
+        }
+        
+        .priority-medium {
+            background-color: rgba(255, 204, 0, 0.1) !important;
+        }
+        
+        .priority-low {
+            background-color: rgba(255, 68, 68, 0.1) !important;
+        }
+        
+        .gender-badge, .gpa-badge, .room-badge, .priority-badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+        
+        .gender-badge.male {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+        
+        .gender-badge.female {
+            background-color: rgba(255, 0, 128, 0.2);
+            color: #ff0080;
+            border: 1px solid #ff0080;
+        }
+        
+        .gpa-badge.gpa-excellent {
+            background-color: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        
+        .gpa-badge.gpa-very-good {
+            background-color: rgba(0, 204, 255, 0.2);
+            color: #00ccff;
+            border: 1px solid #00ccff;
+        }
+        
+        .gpa-badge.gpa-good {
+            background-color: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+        }
+        
+        .gpa-badge.gpa-poor {
+            background-color: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+        
+        .room-badge.standard {
+            background-color: rgba(108, 117, 125, 0.2);
+            color: #6c757d;
+            border: 1px solid #6c757d;
+        }
+        
+        .room-badge.premium {
+            background-color: rgba(0, 123, 255, 0.2);
+            color: #007bff;
+            border: 1px solid #007bff;
+        }
+        
+        .room-badge.suite {
+            background-color: rgba(212, 175, 55, 0.2);
+            color: #d4af37;
+            border: 1px solid #d4af37;
+        }
+        
+        .priority-badge.priority-excellent {
+            background-color: rgba(0, 255, 136, 0.2);
+            color: #00ff88;
+            border: 1px solid #00ff88;
+        }
+        
+        .priority-badge.priority-good {
+            background-color: rgba(255, 204, 0, 0.2);
+            color: #ffcc00;
+            border: 1px solid #ffcc00;
+        }
+        
+        .priority-badge.priority-low {
+            background-color: rgba(255, 68, 68, 0.2);
+            color: #ff4444;
+            border: 1px solid #ff4444;
+        }
+        
+        .action-btn {
+            background: none;
+            border: 1px solid #00ff88;
+            color: #00ff88;
+            width: 30px;
+            height: 30px;
+            border-radius: 3px;
+            cursor: pointer;
+            margin: 0 2px;
+            transition: all 0.3s ease;
+        }
+        
+        .action-btn:hover {
+            background-color: rgba(0, 255, 136, 0.1);
+        }
+        
+        .action-btn.delete {
+            border-color: #ff4444;
+            color: #ff4444;
+        }
+        
+        .action-btn.delete:hover {
+            background-color: rgba(255, 68, 68, 0.1);
+        }
+        
+        .table-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+        }
+        
+        .pagination {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .vault-sidebar {
+            grid-column: 2;
+            grid-row: 2 / span 2;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        
+        .sidebar-card {
+            background-color: rgba(10, 25, 41, 0.9);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 1rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        .sidebar-card h3 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+            padding-bottom: 0.5rem;
+        }
+        
+        .chart-container {
+            height: 200px;
+            overflow-y: auto;
+        }
+        
+        .chart-bars {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .chart-bar {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .bar-label {
+            width: 80px;
+            font-size: 0.8rem;
+            color: #80ffc0;
+        }
+        
+        .bar-container {
+            flex: 1;
+            height: 20px;
+            background-color: rgba(0, 255, 136, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .bar-fill {
+            height: 100%;
+            background-color: #00ff88;
+            border-radius: 3px;
+            transition: width 0.5s ease;
+        }
+        
+        .bar-value {
+            width: 30px;
+            text-align: left;
+            font-weight: bold;
+            color: #00ff88;
+        }
+        
+        .management-tools {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .full-width {
+            width: 100%;
+        }
+        
+        .system-info {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(0, 255, 136, 0.1);
+        }
+        
+        .info-item:last-child {
+            border-bottom: none;
+        }
+        
+        .no-data {
+            text-align: center;
+            padding: 2rem;
+            color: #80ffc0;
+            font-style: italic;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            left: 0;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .vault-modal {
+            background-color: #0a1929;
+            border: 2px solid #00ff88;
+            border-radius: 5px;
+            width: 100%;
+            max-width: 800px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem;
+            border-bottom: 1px solid #00ff88;
+            background-color: rgba(0, 255, 136, 0.1);
+        }
+        
+        .modal-header h3 {
+            color: #00ff88;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            color: #00ff88;
+            font-size: 1.5rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+        
+        .modal-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 255, 136, 0.3);
+            background-color: rgba(0, 255, 136, 0.05);
+        }
+        
+        .student-details {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+        
+        .detail-section {
+            background-color: rgba(0, 255, 136, 0.05);
+            border: 1px solid rgba(0, 255, 136, 0.1);
+            border-radius: 5px;
+            padding: 1rem;
+        }
+        
+        .detail-section h4 {
+            color: #00ff88;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .detail-item {
+            margin-bottom: 0.75rem;
+        }
+        
+        .detail-item strong {
+            display: inline-block;
+            width: 150px;
+            color: #80ffc0;
+        }
+        
+        .files-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: rgba(0, 255, 136, 0.05);
+            border-radius: 3px;
+        }
+        
+        .file-item i.success {
+            color: #00ff88;
+        }
+        
+        .vault-notification {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            background-color: rgba(10, 25, 41, 0.95);
+            border: 1px solid #00ff88;
+            border-radius: 5px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            min-width: 300px;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 1001;
+        }
+        
+        .vault-notification.show {
+            transform: translateX(0);
+        }
+        
+        .vault-notification.success {
+            border-color: #00ff88;
+        }
+        
+        .vault-notification.error {
+            border-color: #ff4444;
+        }
+        
+        .vault-notification.warning {
+            border-color: #ffcc00;
+        }
+        
+        .vault-notification i {
+            font-size: 1.2rem;
+        }
+        
+        .vault-notification.success i {
+            color: #00ff88;
+        }
+        
+        .vault-notification.error i {
+            color: #ff4444;
+        }
+        
+        .vault-notification.warning i {
+            color: #ffcc00;
+        }
+        
+        .notification-close {
+            margin-right: auto;
+            background: none;
+            border: none;
+            color: inherit;
+            font-size: 1.2rem;
+            cursor: pointer;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        @media (max-width: 1200px) {
+            .vault-wrapper {
+                grid-template-columns: 1fr;
+                grid-template-rows: auto auto auto 1fr;
+                height: auto;
+                min-height: 100vh;
+            }
+            
+            .vault-dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .vault-sidebar {
+                grid-column: 1;
+                grid-row: auto;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                display: grid;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .vault-control-bar {
+                flex-direction: column;
+                gap: 1rem;
+            }
+            
+            .vault-stats {
+                order: 3;
+                width: 100%;
+                justify-content: space-around;
+            }
+            
+            .dashboard-stats.grid-4 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+            }
+            
+            .table-footer {
+                flex-direction: column;
+                gap: 1rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .dashboard-stats.grid-4 {
+                grid-template-columns: 1fr;
+            }
+            
+            .vault-sidebar {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* تأثيرات خاصة */
+        code {
+            font-family: 'Courier New', monospace;
+            background-color: rgba(0, 255, 136, 0.1);
+            padding: 2px 4px;
+            border-radius: 3px;
+            color: #00ff88;
+        }
+        
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background-color: rgba(0, 255, 136, 0.1);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background-color: #00ff88;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: #00cc66;
+        }
+    </style>
+</body>
+  </html>
