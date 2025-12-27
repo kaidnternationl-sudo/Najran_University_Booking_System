@@ -1,11 +1,9 @@
-// main.js - ملف الربط النهائي وإدارة Web3Forms
+// main.js - ملف الربط النهائي وإدارة Web3Forms (بدون رفع ملفات)
 
 // كائن الإعدادات العامة
 const AppConfig = {
     web3FormsKey: '8f907260-fc10-46e0-b5b6-422b56f45c19',
     apiEndpoint: 'https://api.web3forms.com/submit',
-    maxFileSize: 5 * 1024 * 1024, // 5MB
-    allowedFileTypes: ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg'],
     sessionTimeout: 30 * 60 * 1000 // 30 دقيقة
 };
 
@@ -16,12 +14,6 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // إعداد المستمعين للنماذج
     setupFormListeners();
-    
-    // إعداد مستمعين للتحميلات
-    setupFileUploadListeners();
-    
-    // إعداد التبديل بين الثيمات
-    setupThemeToggle();
 });
 
 // التحقق من صحة الجلسة
@@ -127,34 +119,17 @@ function collectFormData(form) {
     const fields = [
         'fullName', 'nationalId', 'phone', 'email', 'gender', 
         'province', 'specialization', 'gpa', 'academicYear',
-        'roomType', 'buildingPreference', 'roommateRequest',
-        'specialNeeds'
+        'roomType', 'buildingPreference', 'specialNeeds'
     ];
     
     fields.forEach(field => {
         data[field] = formData.get(field) || '';
     });
     
-    // معالجة الملفات
-    const fileFields = ['idFile', 'academicRecord', 'photo', 'healthCertificate'];
-    data.files = {};
-    
-    fileFields.forEach(field => {
-        const file = form.querySelector(`#${field}`).files[0];
-        if (file) {
-            data.files[field] = {
-                name: file.name,
-                size: file.size,
-                type: file.type,
-                uploaded: true
-            };
-        }
-    });
-    
     return data;
 }
 
-// التحقق من صحة النموذج
+// التحقق من صحة النموذج (بدون ملفات)
 function validateForm(form) {
     let isValid = true;
     const errors = [];
@@ -198,25 +173,14 @@ function validateForm(form) {
         }
     }
     
-    // التحقق من الملفات
-    const fileFields = form.querySelectorAll('input[type="file"][required]');
-    fileFields.forEach(field => {
-        if (!field.files || field.files.length === 0) {
-            errors.push(`ملف ${field.previousElementSibling?.textContent || ''} مطلوب`);
+    // التحقق من رقم الهوية
+    const nationalIdField = form.querySelector('input[name="nationalId"]');
+    if (nationalIdField && nationalIdField.value) {
+        if (nationalIdField.value.length !== 10 || !/^\d+$/.test(nationalIdField.value)) {
+            errors.push('رقم الهوية يجب أن يتكون من 10 أرقام');
             isValid = false;
-        } else {
-            const file = field.files[0];
-            if (file.size > AppConfig.maxFileSize) {
-                errors.push(`حجم ملف ${field.previousElementSibling?.textContent || ''} أكبر من 5MB`);
-                isValid = false;
-            }
-            
-            if (!AppConfig.allowedFileTypes.includes(file.type)) {
-                errors.push(`نوع ملف ${field.previousElementSibling?.textContent || ''} غير مسموح`);
-                isValid = false;
-            }
         }
-    });
+    }
     
     // التحقق من الموافقة على الشروط
     const agreeTerms = form.querySelector('input[name="agreeTerms"]');
@@ -238,68 +202,6 @@ function validateForm(form) {
     }
     
     return isValid;
-}
-
-// إعداد مستمعي تحميل الملفات
-function setupFileUploadListeners() {
-    const fileInputs = document.querySelectorAll('input[type="file"]');
-    
-    fileInputs.forEach(input => {
-        input.addEventListener('change', function() {
-            const file = this.files[0];
-            if (!file) return;
-            
-            // التحقق من حجم الملف
-            if (file.size > AppConfig.maxFileSize) {
-                showAlert(`حجم الملف أكبر من 5MB: ${file.name}`, 'error');
-                this.value = '';
-                return;
-            }
-            
-            // التحقق من نوع الملف
-            if (!AppConfig.allowedFileTypes.includes(file.type)) {
-                showAlert(`نوع الملف غير مسموح: ${file.name}`, 'error');
-                this.value = '';
-                return;
-            }
-            
-            showAlert(`تم رفع الملف: ${file.name}`, 'success');
-        });
-    });
-}
-
-// إعداد تبديل الوضع الليلي
-function setupThemeToggle() {
-    const themeToggle = document.querySelector('.theme-toggle');
-    
-    if (themeToggle) {
-        themeToggle.addEventListener('click', function() {
-            document.body.classList.toggle('dark-mode');
-            
-            // حفظ التفضيل
-            const isDarkMode = document.body.classList.contains('dark-mode');
-            localStorage.setItem('darkMode', isDarkMode);
-            
-            // تحديث أيقونة الزر
-            const icon = this.querySelector('i');
-            if (isDarkMode) {
-                icon.className = 'fas fa-sun';
-                this.innerHTML = '<i class="fas fa-sun"></i> الوضع النهاري';
-            } else {
-                icon.className = 'fas fa-moon';
-                this.innerHTML = '<i class="fas fa-moon"></i> الوضع الليلي';
-            }
-        });
-        
-        // استعادة التفضيل المحفوظ
-        const savedDarkMode = localStorage.getItem('darkMode') === 'true';
-        if (savedDarkMode) {
-            document.body.classList.add('dark-mode');
-            const icon = themeToggle.querySelector('i');
-            icon.className = 'fas fa-sun';
-            themeToggle.innerHTML = '<i class="fas fa-sun"></i> الوضع النهاري';
-        }
-    }
 }
 
 // دالة عرض التنبيهات
@@ -459,7 +361,7 @@ function restoreTempFormData(formId) {
     }
 }
 
-// أنماط إضافية للتحميل
+// أنماط إضافية للتحميل (سيتم إضافتها تلقائياً)
 const loadingStyles = document.createElement('style');
 loadingStyles.textContent = `
     .loading-overlay {
@@ -476,17 +378,18 @@ loadingStyles.textContent = `
     }
     
     .loading-content {
-        background-color: var(--white);
+        background-color: var(--dark-card);
         padding: 2rem;
         border-radius: var(--border-radius-md);
         text-align: center;
         box-shadow: var(--shadow-lg);
+        border: 1px solid var(--dark-border);
     }
     
     .loading-spinner {
         width: 50px;
         height: 50px;
-        border: 5px solid var(--gray-light);
+        border: 5px solid var(--dark-border);
         border-top-color: var(--primary-green);
         border-radius: 50%;
         animation: spin 1s linear infinite;
@@ -496,11 +399,67 @@ loadingStyles.textContent = `
     @keyframes spin {
         to { transform: rotate(360deg); }
     }
-    
-    .dark-mode .loading-content {
-        background-color: var(--dark-secondary);
-        color: var(--white);
-    }
 `;
 
 document.head.appendChild(loadingStyles);
+
+// تهيئة تحديث الإحصائيات للصفحة الرئيسية
+if (window.location.pathname.includes('index.html') || window.location.pathname === '/') {
+    document.addEventListener('DOMContentLoaded', function() {
+        // تحديث الإحصائيات
+        updateStatistics();
+        
+        // تحديث الإحصائيات كل 10 ثوانٍ
+        setInterval(updateStatistics, 10000);
+    });
+}
+
+// دالة تحديث الإحصائيات (للصفحة الرئيسية)
+function updateStatistics() {
+    if (!window.studentVault) return;
+    
+    const stats = studentVault.getStatistics();
+    const students = studentVault.getStudents();
+    
+    // تحديث الأرقام الرئيسية
+    const totalStudentsEl = document.getElementById('totalStudents');
+    const availableRoomsEl = document.getElementById('availableRooms');
+    const maleCountEl = document.getElementById('maleCount');
+    const femaleCountEl = document.getElementById('femaleCount');
+    const averageGPAEl = document.getElementById('averageGPA');
+    const maxGPAEl = document.getElementById('maxGPA');
+    const occupancyRateEl = document.getElementById('occupancyRate');
+    const availableRateEl = document.getElementById('availableRate');
+    const maleProgressEl = document.getElementById('maleProgress');
+    const occupancyProgressEl = document.getElementById('occupancyProgress');
+    const gpaProgressEl = document.getElementById('gpaProgress');
+    
+    if (totalStudentsEl) totalStudentsEl.textContent = stats.total;
+    if (availableRoomsEl) availableRoomsEl.textContent = stats.available;
+    
+    if (maleCountEl) maleCountEl.textContent = stats.genderStats['ذكر'] || 0;
+    if (femaleCountEl) femaleCountEl.textContent = stats.genderStats['أنثى'] || 0;
+    
+    const malePercent = stats.total > 0 ? Math.round((stats.genderStats['ذكر'] || 0) / stats.total * 100) : 0;
+    if (maleProgressEl) maleProgressEl.style.width = malePercent + '%';
+    
+    if (averageGPAEl) averageGPAEl.textContent = stats.averageGPA;
+    
+    // حساب أعلى معدل
+    if (students.length > 0 && maxGPAEl) {
+        const maxGPA = Math.max(...students.map(s => parseFloat(s.gpa)));
+        maxGPAEl.textContent = maxGPA.toFixed(2);
+        
+        if (gpaProgressEl) {
+            gpaProgressEl.style.width = Math.round((maxGPA / 5) * 100) + '%';
+        }
+    }
+    
+    // تحديث معدل الإشغال
+    if (occupancyRateEl && availableRateEl && occupancyProgressEl) {
+        const occupancyPercent = Math.round((stats.total / stats.capacity) * 100);
+        occupancyProgressEl.style.width = occupancyPercent + '%';
+        occupancyRateEl.textContent = occupancyPercent + '%';
+        availableRateEl.textContent = (100 - occupancyPercent) + '%';
+    }
+        }
