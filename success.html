@@ -1,150 +1,0 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تم التسجيل بنجاح - جامعة نجران</title>
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/responsive.css">
-</head>
-<body>
-    <header class="university-header">
-        <div class="header-content">
-            <h1>تم تسجيل طلبك بنجاح 🎉</h1>
-            <p>شكراً لك، تم حفظ بياناتك في نظام الخزنة</p>
-        </div>
-    </header>
-
-    <main class="container">
-        <div class="success-container">
-            <div class="success-card">
-                <div class="success-icon">
-                    ✅
-                </div>
-                
-                <h2>تم استلام طلب حجز السكن</h2>
-                <p class="success-message">
-                    تم حفظ بياناتك في الخزنة الإدارية بنجاح وسيتم المفاضلة بين الطلاب حسب المعدل والمسافة.
-                </p>
-                
-                <div class="application-details" id="applicationDetails">
-                    <!-- سيتم ملؤها بواسطة JavaScript -->
-                </div>
-                
-                <div class="priority-notice">
-                    <h3>📋 أولوية الحجز:</h3>
-                    <p>سيتم ترتيب الطلاب حسب:</p>
-                    <ol>
-                        <li>الأعلى معدلاً تراكمياً (70% من النقاط)</li>
-                        <li>الأبعد مسافة عن الجامعة (30% من النقاط)</li>
-                    </ol>
-                </div>
-                
-                <div class="vault-notice">
-                    <h3>📁 الخزنة الإدارية:</h3>
-                    <p>جميع بياناتك محفوظة في الخزنة الإدارية الآمنة التي يمكن للمدير الوصول إليها فقط.</p>
-                </div>
-                
-                <div class="actions">
-                    <a href="index.html" class="btn-primary">العودة للرئيسية</a>
-                    <button onclick="printPage()" class="btn-secondary">طباعة التأكيد</button>
-                </div>
-            </div>
-            
-            <div class="info-sidebar">
-                <div class="info-card">
-                    <h3>ℹ️ معلومات هامة</h3>
-                    <ul>
-                        <li>النظام يحتفظ بـ 50 طلباً فقط</li>
-                        <li>الطلبات الأحدث تحل محل الأقدم عند الوصول للحد الأقصى</li>
-                        <li>سيتم الإعلان عن النتائج عبر البريد الإلكتروني</li>
-                        <li>لأي استفسار: housing@nu.edu.sa</li>
-                    </ul>
-                </div>
-                
-                <div class="counter-card">
-                    <h3>📊 حالة الخزنة</h3>
-                    <div class="counter-number" id="vaultStatus">0/50</div>
-                    <div class="counter-bar">
-                        <div class="counter-fill" id="vaultFill"></div>
-                    </div>
-                    <p class="counter-text">طلبات مخزنة حالياً</p>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer class="footer">
-        <p>© 2024 جامعة نجران - نظام السكن الجامعي</p>
-    </footer>
-
-    <script src="js/vault.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // استرجاع بيانات الطالب الأخير
-            const studentData = JSON.parse(localStorage.getItem('lastRegisteredStudent'));
-            const vault = new StudentVault();
-            
-            if (!studentData) {
-                // إذا لم توجد بيانات، العودة للتسجيل
-                window.location.href = 'registration.html';
-                return;
-            }
-            
-            // عرض تفاصيل الطلب
-            document.getElementById('applicationDetails').innerHTML = `
-                <div class="detail-row">
-                    <span class="detail-label">الاسم:</span>
-                    <span class="detail-value">${studentData.fullName}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">رقم الهوية:</span>
-                    <span class="detail-value">${studentData.nationalId}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">المعدل:</span>
-                    <span class="detail-value">${studentData.gpa}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">المحافظة:</span>
-                    <span class="detail-value">${studentData.province}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">التخصص:</span>
-                    <span class="detail-value">${studentData.specialization}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">رقم الطلب:</span>
-                    <span class="detail-value">${studentData.id}</span>
-                </div>
-                <div class="detail-row">
-                    <span class="detail-label">تاريخ التسجيل:</span>
-                    <span class="detail-value">${new Date(studentData.registrationDate).toLocaleString('ar-SA')}</span>
-                </div>
-            `;
-            
-            // تحديث حالة الخزنة
-            updateVaultStatus();
-            
-            function updateVaultStatus() {
-                const count = vault.getApplicationsCount();
-                document.getElementById('vaultStatus').textContent = `${count}/50`;
-                
-                const percentage = (count / 50) * 100;
-                const fill = document.getElementById('vaultFill');
-                fill.style.width = percentage + '%';
-                
-                if (count >= 50) {
-                    fill.style.backgroundColor = '#dc3545';
-                } else if (count >= 40) {
-                    fill.style.backgroundColor = '#ffc107';
-                }
-            }
-        });
-        
-        function printPage() {
-            window.print();
-        }
-    </script>
-</body>
-</html>
