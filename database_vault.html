@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>خزنة البيانات الإدارية - جامعة نجران</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="admin-page">
+    <script>
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            document.body.classList.add('dark-mode');
+        }
+    </script>
+
+    <!-- التحقق من صلاحية الدخول -->
+    <script>
+        if (!localStorage.getItem('adminSession')) {
+            window.location.href = 'login.html?redirect=vault';
+        }
+    </script>
+
+    <!-- الهيدر الإداري -->
+    <header class="admin-header">
+        <div class="admin-header-content">
+            <div class="admin-brand">
+                <img src="assets/images/university-logo.png" alt="شعار الجامعة" class="admin-logo">
+                <div class="brand-text">
+                    <h1>خزنة البيانات الإدارية</h1>
+                    <p>جامعة نجران - عمادة شؤون الطلاب</p>
+                </div>
+            </div>
+            
+            <div class="admin-controls">
+                <div class="admin-info">
+                    <i class="fas fa-user-shield"></i>
+                    <span>مدير النظام</span>
+                </div>
+                <button id="logoutAdmin" class="btn-logout">
+                    <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                </button>
+            </div>
+        </div>
+        
+        <nav class="admin-nav">
+            <ul>
+                <li><a href="database_vault.html" class="active"><i class="fas fa-database"></i> خزنة البيانات</a></li>
+                <li><a href="admin-dashboard.html"><i class="fas fa-chart-bar"></i> لوحة التحكم</a></li>
+                <li><a href="#reports"><i class="fas fa-file-alt"></i> التقارير</a></li>
+                <li><a href="#settings"><i class="fas fa-cog"></i> الإعدادات</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="vault-container">
+        <div class="container">
+            <!-- إحصائيات سريعة -->
+            <section class="vault-stats">
+                <h2><i class="fas fa-tachometer-alt"></i> نظرة سريعة على الخزنة</h2>
+                <div class="stats-grid">
+                    <div class="stat-box">
+                        <div class="stat-icon total">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>إجمالي المسجلين</h3>
+                            <div class="stat-number" id="totalStudents">0</div>
+                            <p class="stat-trend"><i class="fas fa-arrow-up"></i> تحديث حي</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon male">
+                            <i class="fas fa-male"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>طلاب ذكور</h3>
+                            <div class="stat-number" id="maleStudents">0</div>
+                            <p class="stat-percent" id="malePercent">0%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon female">
+                            <i class="fas fa-female"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>طالبات إناث</h3>
+                            <div class="stat-number" id="femaleStudents">0</div>
+                            <p class="stat-percent" id="femalePercent">0%</p>
+                        </div>
+                    </div>
+                    
+                    <div class="stat-box">
+                        <div class="stat-icon avg">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="stat-content">
+                            <h3>متوسط المعدل</h3>
+                            <div class="stat-number" id="averageGPA">0.00</div>
+                            <p class="stat-trend">من 5.00</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- أدوات التحكم -->
+            <section class="vault-controls">
+                <div class="controls-left">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" 
+                               id="searchInput" 
+                               placeholder="ابحث بالاسم، رقم الهوية، أو التخصص...">
+                    </div>
+                    
+                    <div class="filter-group">
+                        <select id="filterGender" class="filter-select">
+                            <option value="">جميع الأجناس</option>
+                            <option value="male">ذكور فقط</option>
+                            <option value="female">إناث فقط</option>
+                        </select>
+                        
+                        <select id="filterProvince" class="filter-select">
+                            <option value="">جميع المحافظات</option>
+                            <!-- سيتم ملؤها ديناميكياً -->
+                        </select>
+                        
+                        <select id="filterBuilding" class="filter-select">
+                            <option value="">جميع المباني</option>
+                            <option value="A">المبنى أ</option>
+                            <option value="B">المبنى ب</option>
+                            <option value="C">المبنى ج</option>
+                            <option value="1">المبنى 1</option>
+                            <option value="2">المبنى 2</option>
+                            <option value="3">المبنى 3</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="controls-right">
+                    <div class="sort-group">
+                        <label for="sortBy"><i class="fas fa-sort"></i> ترتيب حسب:</label>
+                        <select id="sortBy" class="sort-select">
+                            <option value="date_desc">الأحدث أولاً</option>
+                            <option value="date_asc">الأقدم أولاً</option>
+                            <option value="gpa_desc">الأعلى معدلاً</option>
+                            <option value="gpa_asc">الأقل معدلاً</option>
+                            <option value="name_asc">الاسم (أ-ي)</option>
+                            <option value="name_desc">الاسم (ي-أ)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="action-buttons">
+                        <button id="exportData" class="btn-export">
+                            <i class="fas fa-file-export"></i> تصدير البيانات
+                        </button>
+                        <button id="refreshData" class="btn-refresh">
+                            <i class="fas fa-sync-alt"></i> تحديث
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- جدول البيانات الرئيسي -->
+            <section class="vault-table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-table"></i> سجل الطلاب المسجلين</h3>
+                    <div class="table-info">
+                        <span id="tableCount">0</span> طالب معروض
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table class="vault-table" id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>الاسم الرباعي</th>
+                                <th>رقم الهوية</th>
+                                <th>الجنس</th>
+                                <th>المحافظة</th>
+                                <th>التخصص</th>
+                                <th>المعدل</th>
+                                <th>المبنى</th>
+                                <th>رقم الحجز</th>
+                                <th>تاريخ التسجيل</th>
+                                <th>الإجراءات</th>
+                            </tr>
+                        </thead>
+                        <tbody id="studentsTableBody">
+                            <!-- سيتم ملؤها بواسطة JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <div class="table-footer">
+                    <div class="pagination">
+                        <button id="prevPage" class="page-btn" disabled>
+                            <i class="fas fa-chevron-right"></i>
+                        </button>
+                        <span class="page-info">الصفحة <span id="currentPage">1</span> من <span id="totalPages">1</span></span>
+                        <button id="nextPage" class="page-btn">
+                            <i class="fas fa-chevron-left"></i>
+                        </button>
+                    </div>
+                    
+                    <div class="rows-per-page">
+                        <label>عرض:</label>
+                        <select id="rowsPerPage">
+                            <option value="10">10</option>
+                            <option value="25" selected>25</option>
+                            <option value="50">50</option>
+                            <option value="100">100</option>
+                        </select>
+                        <span>صف في كل صفحة</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- خريطة التوزيع الجغرافي -->
+            <section class="distribution-section">
+                <div class="section-header">
+                    <h3><i class="fas fa-map-marked-alt"></i> التوزيع الجغرافي للطلاب</h3>
+                    <button id="toggleMap" class="btn-toggle">
+                        <i class="fas fa-expand-alt"></i> عرض كامل
+                    </button>
+                </div>
+                
+                <div class="distribution-grid">
+                    <div class="province-list" id="provinceList">
+                        <!-- سيتم ملؤها ديناميكياً -->
+                    </div>
+                    
+                    <div class="map-visualization">
+                        <div class="map-placeholder">
+                            <i class="fas fa-map"></i>
+                            <p>خريطة توزيع الطلاب حسب المحافظات</p>
+                            <div class="map-legend">
+                                <div class="legend-item">
+                                    <span class="legend-color high"></span>
+                                    <span>أكثر من 50 طالب</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color medium"></span>
+                                    <span>20 - 50 طالب</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-color low"></span>
+                                    <span>أقل من 20 طالب</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- الإجراءات الإدارية -->
+            <section class="admin-actions">
+                <h3><i class="fas fa-cogs"></i> الإجراءات الإدارية</h3>
+                <div class="actions-grid">
+                    <button class="action-btn" id="addManualStudent">
+                        <i class="fas fa-user-plus"></i>
+                        <span>إضافة طالب يدوياً</span>
+                    </button>
+                    
+                    <button class="action-btn" id="sendBulkNotifications">
+                        <i class="fas fa-bell"></i>
+                        <span>إرسال إشعارات جماعية</span>
+                    </button>
+                    
+                    <button class="action-btn" id="generateReports">
+                        <i class="fas fa-chart-pie"></i>
+                        <span>إنشاء تقارير إحصائية</span>
+                    </button>
+                    
+                    <button class="action-btn" id="backupData">
+                        <i class="fas fa-database"></i>
+                        <span>نسخ احتياطي للبيانات</span>
+                    </button>
+                    
+                    <button class="action-btn" id="manageBuildings">
+                        <i class="fas fa-building"></i>
+                        <span>إدارة المباني والسعة</span>
+                    </button>
+                    
+                    <button class="action-btn" id="systemSettings">
+                        <i class="fas fa-sliders-h"></i>
+                        <span>إعدادات النظام</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- الفوتر الإداري -->
+    <footer class="admin-footer">
+        <div class="footer-content">
+            <div class="footer-left">
+                <p><i class="fas fa-shield-alt"></i> نظام آمن ومشفر وفق معايير NCSC</p>
+                <p>آخر تحديث للبيانات: <span id="lastUpdate">--:--</span></p>
+            </div>
+            
+            <div class="footer-right">
+                <p>© 2024 نظام حجز السكن الجامعي - الإصدار 2.0.1</p>
+                <p>للطوارئ التقنية: 0175432199</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- نافذة عرض تفاصيل الطالب -->
+    <div class="modal" id="studentModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-graduate"></i> تفاصيل الطالب</h3>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body" id="studentModalBody">
+                <!-- سيتم ملؤها ديناميكياً -->
+            </div>
+        </div>
+    </div>
+
+    <script src="js/vault.js"></script>
+    <script src="js/admin.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // تهيئة الخزنة
+            const vault = new StudentVault();
+            
+            // تحديث الإحصائيات
+            function updateStatistics() {
+                const stats = vault.calculateStatistics();
+                
+                document.getElementById('totalStudents').textContent = stats.total;
+                document.getElementById('maleStudents').textContent = stats.maleCount;
+                document.getElementById('femaleStudents').textContent = stats.femaleCount;
+                
+                const malePercent = stats.total > 0 ? Math.round((stats.maleCount / stats.total) * 100) : 0;
+                const femalePercent = stats.total > 0 ? Math.round((stats.femaleCount / stats.total) * 100) : 0;
+                
+                document.getElementById('malePercent').textContent = malePercent + '%';
+                document.getElementById('femalePercent').textContent = femalePercent + '%';
+                document.getElementById('averageGPA').textContent = stats.avgGPA;
+                
+                // تحديث قائمة المحافظات في الفلتر
+                updateProvinceFilter(stats.provinces);
+                
+                // تحديث التوزيع الجغرافي
+                updateProvinceDistribution(stats.provinces);
+                
+                // تحديث وقت آخر تحديث
+                document.getElementById('lastUpdate').textContent = 
+                    new Date().toLocaleTimeString('ar-SA');
+            }
+            
+            function updateProvinceFilter(provinces) {
+                const filterSelect = document.getElementById('filterProvince');
+                const currentValue = filterSelect.value;
+                
+                // حفظ المحافظات الحالية
+                const provinceOptions = Object.keys(provinces).sort();
+                
+                // تحديث الخيارات
+                filterSelect.innerHTML = '<option value="">جميع المحافظات</option>';
+                provinceOptions.forEach(province => {
+                    const option = document.createElement('option');
+                    option.value = province;
+                    option.textContent = `${province} (${provinces[province]})`;
+                    if (province === currentValue) option.selected = true;
+                    filterSelect.appendChild(option);
+                });
+            }
+            
+            function updateProvinceDistribution(provinces) {
+                const provinceList = document.getElementById('provinceList');
+                provinceList.innerHTML = '';
+                
+                // تحويل إلى مصفوفة وترتيب تنازلياً
+                const provinceArray = Object.entries(provinces)
+                    .sort((a, b) => b[1] - a[1]);
+                
+                provinceArray.forEach(([province, count]) => {
+                    const percentage = Math.round((count / vault.students.length) * 100);
+                    const item = document.createElement('div');
+                    item.className = 'province-item';
+                    item.innerHTML = `
+                        <div class="province-name">${province}</div>
+                        <div class="province-bar-container">
+                            <div class="province-bar" style="width: ${percentage}%"></div>
+                        </div>
+                        <div class="province-count">${count} طالب (${percentage}%)</div>
+                    `;
+                    provinceList.appendChild(item);
+                });
+            }
+            
+            // تحديث الإحصائيات أول مرة
+            updateStatistics();
+            
+            // تحديث عند تغيير البيانات
+            setInterval(updateStatistics, 30000); // كل 30 ثانية
+            
+            // تسجيل الخروج
+            document.getElementById('logoutAdmin').addEventListener('click', function() {
+                localStorage.removeItem('adminSession');
+                window.location.href = 'index.html';
+            });
+            
+            // تحديث البيانات
+            document.getElementById('refreshData').addEventListener('click', function() {
+                vault.renderTable();
+                updateStatistics();
+                
+                // تأثير التحديث
+                this.innerHTML = '<i class="fas fa-sync-alt fa-spin"></i> جاري التحديث...';
+                setTimeout(() => {
+                    this.innerHTML = '<i class="fas fa-sync-alt"></i> تحديث';
+                }, 1000);
+            });
+            
+            // تصدير البيانات
+            document.getElementById('exportData').addEventListener('click', function() {
+                exportToExcel(vault.students);
+            });
+            
+            // فلترة البيانات
+            document.getElementById('filterGender').addEventListener('change', function() {
+                vault.applyFilters();
+            });
+            
+            document.getElementById('filterProvince').addEventListener('change', function() {
+                vault.applyFilters();
+            });
+            
+            document.getElementById('filterBuilding').addEventListener('change', function() {
+                vault.applyFilters();
+            });
+            
+            // الترتيب
+            document.getElementById('sortBy').addEventListener('change', function() {
+                vault.applySorting();
+            });
+            
+            // البحث
+            document.getElementById('searchInput').addEventListener('input', function(e) {
+                vault.searchStudents(e.target.value);
+            });
+            
+            // إضافة طالب يدوياً
+            document.getElementById('addManualStudent').addEventListener('click', function() {
+                alert('سيتم فتح نموذج إضافة طالب يدوياً في الإصدار القادم');
+            });
+            
+            // وظيفة التصدير إلى Excel
+            function exportToExcel(students) {
+                // في الإصدار الحقيقي، نستخدم مكتبة مثل SheetJS
+                // هنا نقدم بديلاً بسيطاً
+                
+                let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
+                
+                // العنوان
+                csvContent += "الاسم,رقم الهوية,الجنس,المحافظة,التخصص,المعدل,المبنى,رقم الحجز,تاريخ التسجيل\n";
+                
+                // البيانات
+                students.forEach(student => {
+                    const row = [
+                        student.fullName,
+                        student.nationalId,
+                        student.gender === 'male' ? 'ذكر' : 'أنثى',
+                        student.province,
+                        student.specialization,
+                        student.gpa,
+                        student.buildingName || 'غير محدد',
+                        student.reservationCode || 'غير متوفر',
+                        new Date(student.timestamp).toLocaleDateString('ar-SA')
+                    ].join(',');
+                    
+                    csvContent += row + "\n";
+                });
+                
+                // إنشاء رابط التحميل
+                const encodedUri = encodeURI(csvContent);
+                const link = document.createElement("a");
+                link.setAttribute("href", encodedUri);
+                link.setAttribute("download", "طلاب_السكن_الجامعي_" + new Date().toISOString().split('T')[0] + ".csv");
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        });
+    </script>
+</body>
+</html>
