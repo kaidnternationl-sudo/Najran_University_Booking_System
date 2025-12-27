@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تم إرسال الطلب - جامعة نجران</title>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- رأس الصفحة -->
+    <header class="header">
+        <div class="header-content">
+            <div class="logo">
+                <div class="logo-text">
+                    <h1>جامعة نجران</h1>
+                    <p>تأكيد تقديم طلب السكن</p>
+                </div>
+            </div>
+            <div class="header-actions">
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i>
+                    الرئيسية
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="main-content">
+        <div class="success-container card fade-in">
+            <div class="success-header">
+                <div class="success-icon">
+                    <i class="fas fa-check-circle"></i>
+                </div>
+                <h1 class="success-title">تم إرسال طلبك بنجاح</h1>
+                <p class="success-subtitle">تم استلام طلبك وسيتم مراجعته من قبل إدارة السكن</p>
+            </div>
+            
+            <div class="success-details" id="successDetails">
+                <!-- سيتم ملؤها بالبيانات -->
+            </div>
+            
+            <div class="success-instructions">
+                <h3><i class="fas fa-info-circle"></i> التعليمات التالية</h3>
+                <div class="instructions-grid grid grid-3">
+                    <div class="instruction">
+                        <i class="fas fa-envelope"></i>
+                        <h4>البريد الإلكتروني</h4>
+                        <p>سيصلك تأكيد على بريدك الإلكتروني خلال 24 ساعة</p>
+                    </div>
+                    
+                    <div class="instruction">
+                        <i class="fas fa-phone"></i>
+                        <h4>المتابعة</h4>
+                        <p>يمكنك متابعة حالة الطلب عبر الرقم المرجعي</p>
+                    </div>
+                    
+                    <div class="instruction">
+                        <i class="fas fa-calendar-check"></i>
+                        <h4>النتائج</h4>
+                        <p>سيتم إعلان النتائج النهائية في 5 أكتوبر 2024</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="success-actions">
+                <button class="btn btn-primary" onclick="window.print()">
+                    <i class="fas fa-print"></i>
+                    طباعة الإيصال
+                </button>
+                <a href="index.html" class="btn btn-secondary">
+                    <i class="fas fa-home"></i>
+                    العودة للرئيسية
+                </a>
+                <a href="#" class="btn btn-success" id="whatsappShare">
+                    <i class="fab fa-whatsapp"></i>
+                    مشاركة عبر واتساب
+                </a>
+            </div>
+            
+            <div class="success-note">
+                <div class="alert alert-warning">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <strong>هام:</strong> احتفظ بالرقم المرجعي لمتابعة طلبك. ستصلك رسالة نصية عند قبول طلبك.
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- تذييل الصفحة -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>للاستفسارات: 8001248888 | housing@nu.edu.sa</p>
+            <p>جميع الحقوق محفوظة © جامعة نجران 2024</p>
+        </div>
+    </footer>
+
+    <script src="js/vault.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // الحصول على بيانات الإرسال الأخيرة
+            const lastSubmission = sessionStorage.getItem('lastSubmission');
+            
+            if (!lastSubmission) {
+                // إذا لم توجد بيانات، العودة إلى الصفحة الرئيسية
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            try {
+                const submission = JSON.parse(lastSubmission);
+                displaySuccessDetails(submission);
+                
+                // إعداد مشاركة واتساب
+                setupWhatsAppShare(submission.referenceNumber);
+                
+            } catch (error) {
+                console.error('خطأ في عرض البيانات:', error);
+                document.getElementById('successDetails').innerHTML = `
+                    <div class="alert alert-error">
+                        حدث خطأ في عرض البيانات. يرجى التواصل مع الدعم الفني.
+                    </div>
+                `;
+            }
+        });
+        
+        function displaySuccessDetails(submission) {
+            const detailsDiv = document.getElementById('successDetails');
+            const student = submission.studentData;
+            
+            // حساب الرسوم
+            const fees = studentVault.calculateFees(student.roomType);
+            
+            detailsDiv.innerHTML = `
+                <div class="reference-number">
+                    <h3>الرقم المرجعي</h3>
+                    <div class="reference-code">${submission.referenceNumber}</div>
+                    <p class="reference-date">تاريخ التقديم: ${formatDate(student.timestamp)}</p>
+                </div>
+                
+                <div class="success-grid grid grid-2">
+                    <div class="success-info">
+                        <h4><i class="fas fa-user"></i> معلومات الطالب</h4>
+                        <table class="info-table">
+                            <tr>
+                                <th>الاسم الرباعي:</th>
+                                <td>${student.fullName}</td>
+                            </tr>
+                            <tr>
+                                <th>رقم الهوية:</th>
+                                <td>${student.nationalId}</td>
+                            </tr>
+                            <tr>
+                                <th>الجوال:</th>
+                                <td>${student.phone}</td>
+                            </tr>
+                            <tr>
+                                <th>البريد الإلكتروني:</th>
+                                <td>${student.email}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    
+                    <div class="success-info">
+                        <h4><i class="fas fa-graduation-cap"></i> معلومات أكاديمية</h4>
+                        <table class="info-table">
+                            <tr>
+                                <th>التخصص:</th>
+                                <td>${student.specialization}</td>
+                            </tr>
+                            <tr>
+                                <th>المعدل التراكمي:</th>
+                                <td>${student.gpa}</td>
+                            </tr>
+                            <tr>
+                                <th>السنة الدراسية:</th>
+                                <td>${student.academicYear}</td>
+                            </tr>
+                            <tr>
+                                <th>المحافظة:</th>
+                                <td>${student.province}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="success-info">
+                    <h4><i class="fas fa-home"></i> تفاصيل السكن</h4>
+                    <table class="info-table">
+                        <tr>
+                            <th>نوع الغرفة:</th>
+                            <td>${getRoomTypeName(student.roomType)}</td>
+                        </tr>
+                        <tr>
+                            <th>الرسوم التقديرية:</th>
+                            <td>${fees.toLocaleString()} ريال/فصل</td>
+                        </tr>
+                        <tr>
+                            <th>تفضيل المبنى:</th>
+                            <td>${student.buildingPreference || 'لا توجد تفضيلات'}</td>
+                        </tr>
+                        <tr>
+                            <th>رقم الأولوية:</th>
+                            <td>${calculatePriority(student)}</td>
+                        </tr>
+                    </table>
+                </div>
+            `;
+        }
+        
+        function getRoomTypeName(type) {
+            const types = {
+                'standard': 'غرفة قياسية',
+                'premium': 'غرفة متميزة',
+                'suite': 'جناح'
+            };
+            return types[type] || type;
+        }
+        
+        function calculatePriority(student) {
+            // حساب أولوية الطالب بناءً على المعدل والمسافة
+            const provincePriority = {
+                'نجران': 1, 'شرورة': 2, 'حبالة': 3, 'بدر الجنوب': 4, 'يثرب': 5, 'خباش': 6,
+                'الرياض': 10, 'جدة': 11, 'الدمام': 12, 'مكة': 13, 'المدينة': 14, 'تبوك': 15,
+                'الجوف': 16, 'عسير': 17, 'الباحة': 18, 'الحدود الشمالية': 19, 'جازان': 20,
+                'حائل': 21, 'القصيم': 22, 'الشرقية': 23
+            };
+            
+            const gpaScore = parseFloat(student.gpa) * 20; // تحويل إلى مقياس 100
+            const distanceScore = (provincePriority[student.province] || 99) * 3;
+            const totalScore = 100 - (gpaScore * 0.7 + distanceScore * 0.3);
+            
+            return Math.round(totalScore);
+        }
+        
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('ar-SA', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        function setupWhatsAppShare(referenceNumber) {
+            const whatsappBtn = document.getElementById('whatsappShare');
+            const message = `تم تقديم طلب سكني في جامعة نجران بنجاح. الرقم المرجعي: ${referenceNumber}`;
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+            
+            whatsappBtn.href = whatsappUrl;
+            whatsappBtn.target = '_blank';
+        }
+        
+        // حفظ البيانات قبل مغادرة الصفحة
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.removeItem('lastSubmission');
+        });
+    </script>
+    
+    <style>
+        .success-container {
+            text-align: center;
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+        
+        .success-header {
+            margin-bottom: 3rem;
+        }
+        
+        .success-icon {
+            font-size: 5rem;
+            color: #28a745;
+            margin-bottom: 1rem;
+            animation: bounce 1s ease infinite alternate;
+        }
+        
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
+        }
+        
+        .success-title {
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-subtitle {
+            color: var(--gray-medium);
+            font-size: 1.2rem;
+        }
+        
+        .reference-number {
+            background: linear-gradient(135deg, var(--primary-green), var(--secondary-green));
+            color: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius-md);
+            margin-bottom: 2rem;
+        }
+        
+        .reference-code {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin: 1rem 0;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .reference-date {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .success-info {
+            background-color: var(--light-bg);
+            border-radius: var(--border-radius-md);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .dark-mode .success-info {
+            background-color: #1e1e1e;
+        }
+        
+        .success-info h4 {
+            color: var(--primary-green);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+        
+        .info-table {
+            width: 100%;
+            text-align: right;
+        }
+        
+        .info-table tr {
+            border-bottom: 1px solid var(--gray-light);
+        }
+        
+        .dark-mode .info-table tr {
+            border-bottom-color: var(--gray-medium);
+        }
+        
+        .info-table th {
+            padding: 0.75rem;
+            color: var(--gray-medium);
+            font-weight: 600;
+            width: 40%;
+        }
+        
+        .info-table td {
+            padding: 0.75rem;
+            font-weight: 700;
+        }
+        
+        .success-instructions {
+            margin: 3rem 0;
+        }
+        
+        .instruction {
+            text-align: center;
+            padding: 1.5rem;
+        }
+        
+        .instruction i {
+            font-size: 2.5rem;
+            color: var(--accent-gold);
+            margin-bottom: 1rem;
+        }
+        
+        .instruction h4 {
+            color: var(--primary-green);
+            margin-bottom: 0.5rem;
+        }
+        
+        .success-actions {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            flex-wrap: wrap;
+        }
+        
+        .success-note {
+            margin-top: 2rem;
+        }
+        
+        @media (max-width: 768px) {
+            .success-grid.grid-2 {
+                grid-template-columns: 1fr;
+            }
+            
+            .success-actions {
+                flex-direction: column;
+            }
+            
+            .reference-code {
+                font-size: 1.8rem;
+            }
+        }
+        
+        @media print {
+            .success-actions,
+            .footer,
+            .header-actions {
+                display: none !important;
+            }
+            
+            .success-container {
+                box-shadow: none;
+                border: 1px solid #000;
+            }
+        }
+    </style>
+</body>
+</html>
